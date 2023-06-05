@@ -1,7 +1,4 @@
-// Log in schwab.com > Select account > "Export"
-
-
-PERSONAL_CONFIG = {
+var INIT_PERSONAL_CONFIG = {
     hardcodePrice: {
         "VTI": 212.72,
         "VXUS": 55.94
@@ -37,17 +34,44 @@ PERSONAL_CONFIG = {
     bufferCash: 2000
 }
 
+var INIT_SCHWAB_CSV = `
+"Positions for account Personal ...977 as of 07:28 PM ET, 2023/06/04",,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,
+Symbol,Description,Quantity,Price,Price Change %,Price Change $,Market Value,Day Change %,Day Change $,Cost Basis,Gain/Loss %,Gain/Loss $,Ratings,Reinvest Dividends?,Capital Gains?,% Of Account,Security Type
+VXF,,35,143.41,,,5019.35,,,,,,,,,,
+VB,,69,191.21,,,13193.49,,,,,,,,,,
+MSFT,,51,335.4,,,17105.4,,,,,,,,,,
+AAPL,,95,180.95,,,17190.25,,,,,,,,,,
+NVDA,,69,393.27,,,27135.63,,,,,,,,,,
+GOOGL,,82,124.67,,,10222.94,,,,,,,,,,
+AMZN,,6,124.25,,,745.5,,,,,,,,,,
+GOOG,,42,125.23,,,5259.66,,,,,,,,,,
+META,,50,272.61,,,13630.5,,,,,,,,,,
+VEA,,40,45.99,,,1839.6,,,,,,,,,,
+SCHF,,42,35.51,,,1491.42,,,,,,,,,,
+VWO,,30,40.35,,,1210.5,,,,,,,,,,
+IEMG,,89,49.21,,,4379.69,,,,,,,,,,
+VIG,,78,157.27,,,12267.06,,,,,,,,,,
+SCHD,,59,71.24,,,4203.16,,,,,,,,,,
+VTEB,,47,49.84,,,2342.48,,,,,,,,,,
+TFI,,92,45.81,,,4214.52,,,,,,,,,,
+MUB,,39,105.96,,,4132.44,,,,,,,,,,
+Cash & Cash Investments,--,--,--,--,--,"$123,456.00",0%,$0.00,--,--,--,--,--,--,N/A,Cash and Money Market
+Account Total,--,--,--,--,--,"$269,039.59",0%,$0.00,N/A,N/A,N/A,--,--,--,--,--
+`
+
 function main(schwabCSV, personalConfig) {
     let schwab = parseSchwabCSV(schwabCSV);
     let allPrices = getAllPrices(schwab.equities, personalConfig.hardcodePrice);
     let mapTo = inverseMapping(personalConfig.mapping);
     let allEquityInfo = getAllEquityInfo(schwab.equities, mapTo, personalConfig.defaultMapTo, personalConfig.outsideHoldings, allPrices, personalConfig.targetPercentage);
-    console.log(allEquityInfo);
+    // console.log(allEquityInfo);
     let plan = calculateBuyPlan(allPrices, allEquityInfo, personalConfig.targetPercentage, schwab.cash, personalConfig.bufferCash);
-    console.log(plan);
-    return plan;
+    // console.log(plan);
+    return [allEquityInfo, plan];
 }
 
+// Log in schwab.com > Select account > "Export"
 function parseSchwabCSV(content) {
     SYMBOL = 'Symbol';
     QUANTITY = 'Quantity';
@@ -194,6 +218,7 @@ function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, buff
     plan = {}
     for (symbol in targetPercentage) {
         plan[symbol] = {
+            symbol: symbol,
             oldMarketValue: 0
         }
     }
@@ -220,14 +245,20 @@ function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, buff
         e.newMarketValue = e.oldMarketValue + e.addValueActual;
         e.newPercentage = e.newMarketValue / expectMarketValue * 100
     }
+
+
+    planList = []
+    for (symbol in plan) {
+        planList.push(plan[symbol]);
+    }
     fullPlan = {
-        plan: plan,
+        planList: planList,
         cash: cash,
         bufferCash: bufferCash,
         addValueActual: addValueActual,
         bufferCashActual: cash - addValueActual
     }
-    console.log(fullPlan);
+    // console.log(fullPlan);
     return fullPlan;
 }
 

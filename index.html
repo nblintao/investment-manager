@@ -1,0 +1,190 @@
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
+
+    <script src="investment_manager.js"></script>
+    <script>
+        // This is a sample js function that takes two inputs and returns two objects
+        function processInputs(inputCSV, inputConfig) {
+            // Do some processing here
+            var output1 = { name: inputCSV, age: Math.floor(Math.random() * 100), gender: "male" };
+            var output2 = { name: inputConfig, age: Math.floor(Math.random() * 100), gender: "female" };
+            return [output1, output2];
+        }
+
+        // This is a helper function that converts an object to a table
+        function objectToTable(obj) {
+            var table = document.createElement("table");
+            table.border = "1";
+            for (var key in obj) {
+                var row = document.createElement("tr");
+                var cell1 = document.createElement("td");
+                var cell2 = document.createElement("td");
+                cell1.innerHTML = key;
+                cell2.innerHTML = obj[key];
+                row.appendChild(cell1);
+                row.appendChild(cell2);
+                table.appendChild(row);
+            }
+            return table;
+        }
+
+        // This is the main function that handles the button click event
+        function handleClick() {
+            // Get the inputs from the text boxes
+            var inputCSV = document.getElementById("inputCSV").value;
+            var inputConfig = JSON.parse(document.getElementById("inputConfig").value);
+
+            // Call the processInputs function and get the outputs
+            var outputs = main(inputCSV, inputConfig);
+            var allEquityInfo = outputs[0];
+            var plan = outputs[1];
+
+
+            let renderNum = $.fn.dataTable.render.number(',', '.', 3, '');
+
+            $('#allEquityInfo').DataTable({
+                data: allEquityInfo,
+                paging: false,
+                columns: [
+
+                    {
+                        data: 'symbol',
+                        title: 'symbol',
+                    },
+                    {
+                        data: 'quantity',
+                        title: 'quantity',
+                        render: renderNum,
+                        className: "dt-body-right",
+                    },
+                    {
+                        data: 'price',
+                        title: 'price',
+                        render: renderNum,
+                        className: "dt-body-right",
+                    },
+                    {
+                        data: 'marketValue',
+                        title: 'marketValue',
+                        render: renderNum,
+                        className: "dt-body-right",
+                    },
+                    {
+                        data: 'source',
+                        title: 'source',
+                    },
+                    {
+                        data: 'mapTo',
+                        title: 'mapTo',
+                    },
+                ]
+            });
+
+            $('#plan').DataTable({
+                data: plan.planList,
+                paging: false,
+                columns: [
+                    {
+                        data: 'symbol',
+                        title: 'Symbol',
+                    },
+                    {
+                        data: 'oldMarketValue',
+                        title: 'Old$',
+                        render: renderNum,
+                        className: "dt-body-right",
+                    },
+                    {
+                        data: 'oldPercentage',
+                        title: 'Old%',
+                        render: renderNum,
+                        className: "dt-body-right",
+                    },
+                    {
+                        data: 'expectPercentage',
+                        title: 'Expect%',
+                        render: renderNum,
+                        className: "dt-body-right",
+                    },
+                    {
+                        data: 'expectMarketValue',
+                        title: 'Expect$',
+                        render: renderNum,
+                        className: "dt-body-right",
+                    },
+                    {
+                        data: 'addValueNeeded',
+                        title: 'Add$ (need)',
+                        render: renderNum,
+                        className: "dt-body-right",
+                    },
+                    {
+                        data: 'price',
+                        title: 'Price$',
+                        render: renderNum,
+                        className: "dt-body-right",
+                    },
+                    {
+                        data: 'addShares',
+                        title: 'Add Shares',
+                        render: renderNum,
+                        className: "dt-body-right",
+                    },
+                    {
+                        data: 'addValueActual',
+                        title: 'Add$ (actual)',
+                        render: renderNum,
+                        className: "dt-body-right",
+                    },
+                    {
+                        data: 'newMarketValue',
+                        title: 'New$',
+                        render: renderNum,
+                        className: "dt-body-right",
+                    },
+                    {
+                        data: 'newPercentage',
+                        title: 'New%',
+                        render: renderNum,
+                        className: "dt-body-right",
+                    },
+                ]
+            });
+
+            console.log(plan.plan)
+
+
+            let cash = plan.cash;
+            let bufferCash = plan.bufferCash;
+            let addValueActual = plan.addValueActual;
+            let bufferCashActual = plan.bufferCashActual;
+            document.getElementById("planInfo").innerHTML = `
+cash: ${cash}<br/>
+bufferCash: ${bufferCash}<br/>
+addValueActual: ${addValueActual}<br/>
+bufferCashActual: ${bufferCashActual}<br/>
+`
+        }
+    </script>
+</head>
+
+<body>
+    <textarea id="inputCSV" rows="50" cols="80"></textarea>
+    <textarea id="inputConfig" rows="50" cols="80"></textarea>
+    <button onclick="handleClick()">计算</button>
+    <table id="allEquityInfo" clas="display"></table>
+    <table id="plan" clas="display"></table>
+    <p id="planInfo"></p>
+    <script>
+        document.getElementById("inputCSV").value = INIT_SCHWAB_CSV
+        document.getElementById("inputConfig").value = JSON.stringify(INIT_PERSONAL_CONFIG, null, 2);
+        handleClick();
+    </script>
+</body>
+
+</html>

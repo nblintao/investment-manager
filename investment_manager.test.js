@@ -409,8 +409,9 @@ test("test analyzeAllEquities", () => {
     )).toStrictEqual(ALL_EQUITY_INFO);
 });
 PLAN = {
-    plan: {
-        VTI: {
+    planList: [
+        {
+            symbol: 'VTI',
             oldMarketValue: 158454.40546640003,
             oldPercentage: 79.57498591145485,
             expectPercentage: 54,
@@ -422,7 +423,8 @@ PLAN = {
             newMarketValue: 173132.08546640002,
             newPercentage: 54.00557125018797
         },
-        VXUS: {
+        {
+            symbol: 'VXUS',
             oldMarketValue: 29982.0527684,
             oldPercentage: 15.056832403109391,
             expectPercentage: 36,
@@ -434,7 +436,8 @@ PLAN = {
             newMarketValue: 115402.43276839999,
             newPercentage: 35.99780068800926
         },
-        VTEB: {
+        {
+            symbol: 'VTEB',
             oldMarketValue: 10689.439999999999,
             oldPercentage: 5.368181685435767,
             expectPercentage: 10,
@@ -446,7 +449,7 @@ PLAN = {
             newMarketValue: 32070.8,
             newPercentage: 10.003933527310629
         }
-    },
+    ],
     cash: 123456,
     bufferCash: 2000,
     addValueActual: 121479.42,
@@ -501,5 +504,5 @@ PERSONAL_CONFIG = {
 }
 test("test main", () => {
     expect(investment_manager.main(SCHWAB_CSV_3, PERSONAL_CONFIG
-    )).toStrictEqual(PLAN)
+    )).toStrictEqual([ALL_EQUITY_INFO, PLAN])
 })
