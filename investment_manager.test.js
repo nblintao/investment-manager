@@ -464,7 +464,42 @@ test("test calculateBuyPlan", () => {
     )).toStrictEqual(PLAN);
 });
 
+PERSONAL_CONFIG = {
+    hardcodePrice: {
+        "VTI": 212.72,
+        "VXUS": 55.94
+    },
+    outsideHoldings: [
+        { symbol: 'VTI', quantity: 152.69587 },
+        { symbol: 'VXUS', quantity: 376.48986 },
+    ],
+    mapping: {
+        "VTI": [
+            // US stocks
+            "VXF", "VB",
+            // Dividend growth stocks
+            "VIG", "SCHD"
+        ],
+        "VXUS": [
+            // Foreign developed stocks
+            "VEA", "SCHF",
+            // Emerging market stocks
+            "VWO", "IEMG"
+        ],
+        // Municipal bonds
+        "VTEB": [
+            "TFI", "MUB"
+        ]
+    },
+    defaultMapTo: "VTI",
+    targetPercentage: {
+        "VTI": 54,
+        "VXUS": 36,
+        "VTEB": 10
+    },
+    bufferCash: 2000
+}
 test("test main", () => {
-    expect(investment_manager.main(SCHWAB_CSV_3, investment_manager.PERSONAL_CONFIG
+    expect(investment_manager.main(SCHWAB_CSV_3, PERSONAL_CONFIG
     )).toStrictEqual(PLAN)
 })

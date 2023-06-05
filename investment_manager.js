@@ -325,4 +325,4 @@ function CSVToArray(strData, strDelimiter) {
 }
 
 
-module.exports = { parseDollars, parseSchwabCSV, getAllPrices, inverseMapping, getAllEquityInfo, calculateBuyPlan, main, PERSONAL_CONFIG };
+module.exports = { parseDollars, parseSchwabCSV, getAllPrices, inverseMapping, getAllEquityInfo, calculateBuyPlan, main };
