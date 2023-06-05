@@ -1,13 +1,61 @@
 // Log in schwab.com > Select account > "Export"
 
-SYMBOL = 'Symbol';
-QUANTITY = 'Quantity';
-PRICE = 'Price';
-MARKET_VALUE = 'Market Value';
-ACCOUNT_TOTAL = 'Account Total';
-CASH = 'Cash & Cash Investments'
+
+PERSONAL_CONFIG = {
+    hardcodePrice: {
+        "VTI": 212.72,
+        "VXUS": 55.94
+    },
+    outsideHoldings: [
+        { symbol: 'VTI', quantity: 152.69587 },
+        { symbol: 'VXUS', quantity: 376.48986 },
+    ],
+    mapping: {
+        "VTI": [
+            // US stocks
+            "VXF", "VB",
+            // Dividend growth stocks
+            "VIG", "SCHD"
+        ],
+        "VXUS": [
+            // Foreign developed stocks
+            "VEA", "SCHF",
+            // Emerging market stocks
+            "VWO", "IEMG"
+        ],
+        // Municipal bonds
+        "VTEB": [
+            "TFI", "MUB"
+        ]
+    },
+    defaultMapTo: "VTI",
+    targetPercentage: {
+        "VTI": 54,
+        "VXUS": 36,
+        "VTEB": 10
+    },
+    bufferCash: 2000
+}
+
+function main(schwabCSV, personalConfig) {
+    let schwab = parseSchwabCSV(schwabCSV);
+    let allPrices = getAllPrices(schwab.equities, personalConfig.hardcodePrice);
+    let mapTo = inverseMapping(personalConfig.mapping);
+    let allEquityInfo = getAllEquityInfo(schwab.equities, mapTo, personalConfig.defaultMapTo, personalConfig.outsideHoldings, allPrices, personalConfig.targetPercentage);
+    console.log(allEquityInfo);
+    let plan = calculateBuyPlan(allPrices, allEquityInfo, personalConfig.targetPercentage, schwab.cash, personalConfig.bufferCash);
+    console.log(plan);
+    return plan;
+}
 
 function parseSchwabCSV(content) {
+    SYMBOL = 'Symbol';
+    QUANTITY = 'Quantity';
+    PRICE = 'Price';
+    MARKET_VALUE = 'Market Value';
+    ACCOUNT_TOTAL = 'Account Total';
+    CASH = 'Cash & Cash Investments'
+
     table = CSVToArray(content);
     // Find the index of the head row that contains SYMBOL
     let headRowIndex = -1;
@@ -61,10 +109,127 @@ function parseSchwabCSV(content) {
         equities.push(equity);
     }
     result.equities = equities
-    console.log(result)
     return result;
 }
 
+function getAllPrices(equities, hardcodePrice) {
+    let allPrices = {}
+    for (let i = 0; i < equities.length; i++) {
+        let equity = equities[i];
+        allPrices[equity.symbol] = equity.price;
+    }
+    for (let symbol in hardcodePrice) {
+        if (symbol in allPrices) {
+            alert("no need to hardcode " + symbol)
+        }
+        allPrices[symbol] = hardcodePrice[symbol]
+    }
+    return allPrices;
+}
+
+function inverseMapping(mapping) {
+    mapTo = {}
+    for (let target in mapping) {
+        mapping[target].forEach(source => {
+            mapTo[source] = target
+        });
+        // Self should be mapped to itself.
+        mapTo[target] = target
+    }
+    return mapTo;
+}
+
+
+function mapSymbol(symbol, mapTo, defaultMapTo, targetPercentage) {
+    let mapped;
+    if (symbol in mapTo) {
+        mapped = mapTo[symbol];
+    } else {
+        if (defaultMapTo == null) {
+            alert("equity " + e.symbol + " cannot be mapped");
+        } else {
+            mapped = defaultMapTo;
+        }
+    }
+    if (!(mapped in targetPercentage)) {
+        alert(symbol + " is mapped to " + mapped + ", which is not in the target " + targetPercentage)
+    }
+    return mapped;
+}
+function getAllEquityInfo(equities, mapTo, defaultMapTo, outsideHoldings, allPrices, targetPercentage) {
+    let allEquityInfo = [...equities];
+    for (let i = 0; i < allEquityInfo.length; i++) {
+        let e = allEquityInfo[i];
+        e.source = "Schwab"
+        e.mapTo = mapSymbol(e.symbol, mapTo, defaultMapTo, targetPercentage);
+    }
+    for (let i = 0; i < outsideHoldings.length; i++) {
+        let e = {}
+        e.symbol = outsideHoldings[i].symbol
+        e.quantity = outsideHoldings[i].quantity
+        if (!(e.symbol in allPrices)) {
+            alert("price of " + e.symbol + "is unknown!");
+        }
+        e.price = allPrices[e.symbol];
+        e.marketValue = e.quantity * e.price;
+        e.source = "Outside";
+        e.mapTo = mapSymbol(e.symbol, mapTo, defaultMapTo, targetPercentage);
+        allEquityInfo.push(e)
+    }
+    // console.log(allEquityInfo)
+    return allEquityInfo;
+}
+
+function checkTargetPercentage(targetPercentage) {
+    let sum = 0;
+    for (let key in targetPercentage) {
+        sum += targetPercentage[key];
+    }
+    if (sum != 100) {
+        alert("targetPercentage should add up to 100!")
+    }
+}
+function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, bufferCash) {
+    checkTargetPercentage(targetPercentage);
+    plan = {}
+    for (symbol in targetPercentage) {
+        plan[symbol] = {
+            oldMarketValue: 0
+        }
+    }
+    let oldMarketValue = 0
+    for (let i = 0; i < allEquityInfo.length; i++) {
+        const e = allEquityInfo[i];
+        plan[e.mapTo].oldMarketValue += e.marketValue;
+        oldMarketValue += e.marketValue;
+    }
+
+
+    let expectMarketValue = oldMarketValue + cash - bufferCash;
+    let addValueActual = 0;
+    for (symbol in targetPercentage) {
+        let e = plan[symbol];
+        e.oldPercentage = e.oldMarketValue / oldMarketValue * 100;
+        e.expectPercentage = targetPercentage[symbol]
+        e.expectMarketValue = expectMarketValue * e.expectPercentage / 100;
+        e.addValueNeeded = e.expectMarketValue - e.oldMarketValue
+        e.price = allPrices[symbol];
+        e.addShares = Math.round(e.addValueNeeded / e.price)
+        e.addValueActual = e.price * e.addShares;
+        addValueActual += e.addValueActual;
+        e.newMarketValue = e.oldMarketValue + e.addValueActual;
+        e.newPercentage = e.newMarketValue / expectMarketValue * 100
+    }
+    fullPlan = {
+        plan: plan,
+        cash: cash,
+        bufferCash: bufferCash,
+        addValueActual: addValueActual,
+        bufferCashActual: cash - addValueActual
+    }
+    console.log(fullPlan);
+    return fullPlan;
+}
 
 // Can also parse if it does not have dollars.
 function parseDollars(str) {
@@ -160,4 +325,4 @@ function CSVToArray(strData, strDelimiter) {
 }
 
 
-module.exports = { parseDollars, parseSchwabCSV };
+module.exports = { parseDollars, parseSchwabCSV, getAllPrices, inverseMapping, getAllEquityInfo, calculateBuyPlan, main, PERSONAL_CONFIG };
