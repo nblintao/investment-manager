@@ -170,7 +170,7 @@ function mapSymbol(symbol, mapTo, defaultMapTo, targetPercentage) {
         mapped = mapTo[symbol];
     } else {
         if (defaultMapTo == null) {
-            alert("equity " + e.symbol + " cannot be mapped");
+            alert("equity " + symbol + " cannot be mapped");
         } else {
             mapped = defaultMapTo;
         }
