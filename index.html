@@ -2,9 +2,9 @@
 
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 
     <script src="investment_manager.js"></script>
     <script>
@@ -47,45 +47,46 @@
 
             let renderNum = $.fn.dataTable.render.number(',', '.', 3, '');
 
-            $('#allEquityInfo').DataTable({
+            let table = $('#allEquityInfo').DataTable({
                 data: allEquityInfo,
                 paging: false,
                 columns: [
 
                     {
                         data: 'symbol',
-                        title: 'symbol',
+                        title: 'Symbol',
                     },
                     {
                         data: 'quantity',
-                        title: 'quantity',
+                        title: 'Shares',
                         render: renderNum,
                         className: "dt-body-right",
                     },
                     {
                         data: 'price',
-                        title: 'price',
+                        title: 'Price$',
                         render: renderNum,
                         className: "dt-body-right",
                     },
                     {
                         data: 'marketValue',
-                        title: 'marketValue',
+                        title: 'Market Value$',
                         render: renderNum,
                         className: "dt-body-right",
                     },
                     {
                         data: 'source',
-                        title: 'source',
+                        title: 'Source',
                     },
                     {
                         data: 'mapTo',
-                        title: 'mapTo',
+                        title: 'Map To',
                     },
                 ]
             });
 
             $('#plan').DataTable({
+                "autoWidth": true,
                 data: plan.planList,
                 paging: false,
                 columns: [
@@ -119,7 +120,7 @@
                     },
                     {
                         data: 'addValueNeeded',
-                        title: 'Add$ (need)',
+                        title: 'Add$ (Need)',
                         render: renderNum,
                         className: "dt-body-right",
                     },
@@ -137,7 +138,7 @@
                     },
                     {
                         data: 'addValueActual',
-                        title: 'Add$ (actual)',
+                        title: 'Add$ (Actual)',
                         render: renderNum,
                         className: "dt-body-right",
                     },
@@ -156,30 +157,73 @@
                 ]
             });
 
-            console.log(plan.plan)
-
+            console.log(plan.planList)
 
             let cash = plan.cash;
             let bufferCash = plan.bufferCash;
             let addValueActual = plan.addValueActual;
             let bufferCashActual = plan.bufferCashActual;
+
+            pieBefore = []
+            pieAfter = []
+            for (let i = 0; i < plan.planList.length; i++) {
+                const e = plan.planList[i];
+                pieBefore.push({ name: e.symbol, value: e.oldMarketValue })
+                pieAfter.push({ name: e.symbol, value: e.newMarketValue })
+            }
+            pieBefore.push({ name: "Cash to Invest", value: cash - bufferCash })
+            pieBefore.push({ name: "Cash Buffer", value: bufferCash })
+
+            pieAfter.push({ name: "", value: 0 })
+            pieAfter.push({ name: "Cash Buffer", value: bufferCashActual })
+
+            WIDTH = 500;
+
+
+            SETTINGS = {
+                name: d => d.name,
+                value: d => d.value,
+                width: WIDTH,
+                height: WIDTH,
+                colors: d3.schemeTableau10,
+                format: "$,.2f"
+            }
+            document.getElementById("pieBefore").appendChild(PieChart(pieBefore, SETTINGS));
+            document.getElementById("pieAfter").appendChild(PieChart(pieAfter, SETTINGS));
+
+            let fmt = function (num) {
+                const options = {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                };
+                return Number(num).toLocaleString('en', options);
+            };
             document.getElementById("planInfo").innerHTML = `
-cash: ${cash}<br/>
-bufferCash: ${bufferCash}<br/>
-addValueActual: ${addValueActual}<br/>
-bufferCashActual: ${bufferCashActual}<br/>
-`
+                Cash Before: ${fmt(cash)}<br/>
+                > Invest ${fmt(cash - bufferCash)}<br/>
+                > Buffer ${fmt(bufferCash)}<br/>
+                Actual Invested: ${fmt(addValueActual)}<br/>
+                Cash After: ${fmt(bufferCashActual)}<br/>
+                > Buffer ${fmt(bufferCashActual)} <br/>
+            `
         }
+
     </script>
 </head>
 
 <body>
     <textarea id="inputCSV" rows="50" cols="80"></textarea>
     <textarea id="inputConfig" rows="50" cols="80"></textarea>
-    <button onclick="handleClick()">计算</button>
+    <button onclick="handleClick()">规划</button>
     <table id="allEquityInfo" clas="display"></table>
     <table id="plan" clas="display"></table>
+    <div style="display: flex;">
+        <div id="pieBefore"></div>
+        <div id="pieAfter"></div>
+    </div>
+
     <p id="planInfo"></p>
+
     <script>
         document.getElementById("inputCSV").value = INIT_SCHWAB_CSV
         document.getElementById("inputConfig").value = JSON.stringify(INIT_PERSONAL_CONFIG, null, 2);
