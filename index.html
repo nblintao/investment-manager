@@ -2,11 +2,21 @@
 
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
     <script src="investment_manager.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
     <script>
         // This is a sample js function that takes two inputs and returns two objects
         function processInputs(inputCSV, inputConfig) {
@@ -47,9 +57,14 @@
 
             let renderNum = $.fn.dataTable.render.number(',', '.', 3, '');
 
-            let table = $('#allEquityInfo').DataTable({
+            $('#allEquityInfo').DataTable({
                 data: allEquityInfo,
+                destroy: true,
                 paging: false,
+                dom: 'Bfirtp',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ],
                 columns: [
 
                     {
@@ -86,9 +101,13 @@
             });
 
             $('#plan').DataTable({
-                "autoWidth": true,
                 data: plan.planList,
+                destroy: true,
                 paging: false,
+                dom: 'Bfirtp',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ],
                 columns: [
                     {
                         data: 'symbol',
@@ -191,39 +210,56 @@
             document.getElementById("pieBefore").appendChild(PieChart(pieBefore, SETTINGS));
             document.getElementById("pieAfter").appendChild(PieChart(pieAfter, SETTINGS));
 
-            let fmt = function (num) {
-                const options = {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                };
-                return Number(num).toLocaleString('en', options);
-            };
-            document.getElementById("planInfo").innerHTML = `
-                Cash Before: ${fmt(cash)}<br/>
-                > Invest ${fmt(cash - bufferCash)}<br/>
-                > Buffer ${fmt(bufferCash)}<br/>
-                Actual Invested: ${fmt(addValueActual)}<br/>
-                Cash After: ${fmt(bufferCashActual)}<br/>
-                > Buffer ${fmt(bufferCashActual)} <br/>
-            `
+            // let fmt = function (num) {
+            //     const options = {
+            //         minimumFractionDigits: 2,
+            //         maximumFractionDigits: 2
+            //     };
+            //     return Number(num).toLocaleString('en', options);
+            // };
+            // document.getElementById("planInfo").innerHTML = `
+            //     Cash Before: ${fmt(cash)}<br/>
+            //     > Invest ${fmt(cash - bufferCash)}<br/>
+            //     > Buffer ${fmt(bufferCash)}<br/>
+            //     Actual Invested: ${fmt(addValueActual)}<br/>
+            //     Cash After: ${fmt(bufferCashActual)}<br/>
+            //     > Buffer ${fmt(bufferCashActual)} <br/>
+            // `
         }
 
     </script>
 </head>
 
 <body>
-    <textarea id="inputCSV" rows="50" cols="80"></textarea>
-    <textarea id="inputConfig" rows="50" cols="80"></textarea>
-    <button onclick="handleClick()">规划</button>
-    <table id="allEquityInfo" clas="display"></table>
-    <table id="plan" clas="display"></table>
-    <div style="display: flex;">
-        <div id="pieBefore"></div>
-        <div id="pieAfter"></div>
+    <div class="container">
+        <h1 class="display-1">Tao's Investment Manager</h1>
+        <div class="row mb-4">
+            <div class="col">
+                <div class="form-floating">
+                    <textarea class="form-control" id="inputCSV" style="height: 500px"></textarea>
+                    <label for="floatingInputGrid">Schwab CSV</label>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-floating">
+                    <textarea class="form-control" id="inputConfig" style="height: 500px"></textarea>
+                    <label for="floatingInputGrid">Persoanl Config</label>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-around mb-4"">
+            <div class=" d-grid col-4 mx-auto">
+            <button type="button" class="btn btn-primary btn-lg" onclick="handleClick()">Plan</button>
+        </div>
     </div>
-
+    <table id="allEquityInfo" class="table table-striped w-auto table-sm mb-4"></table>
+    <table id="plan" class="table table-striped w-auto mb-4"></table>
+    <div class="row justify-content-around mb-4">
+        <div id="pieBefore" class="col" style="text-align: center;"></div>
+        <div id="pieAfter" class="col" style="text-align: center;"></div>
+    </div>
     <p id="planInfo"></p>
-
+    </div>
     <script>
         document.getElementById("inputCSV").value = INIT_SCHWAB_CSV
         document.getElementById("inputConfig").value = JSON.stringify(INIT_PERSONAL_CONFIG, null, 2);
