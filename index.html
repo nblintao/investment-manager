@@ -1,0 +1,96 @@
+<html>
+
+<head>
+    <title>Tao's Investment Manager</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#469eda">
+    <meta name="msapplication-TileColor" content="#469eda">
+    <meta name="theme-color" content="#ffffff">
+
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <script src="main.js"></script>
+    <style>
+        header {
+            --bs-blue: red
+        }
+
+        /* Use CSS filter generator to convert from black to target hex color: https://codepen.io/sosuke/pen/Pjoqqp */
+        #pigBtnImg {
+            /* Schwab color: #469EDA */
+            /* filter: invert(60%) sepia(48%) saturate(1010%) hue-rotate(177deg) brightness(90%) contrast(90%); */
+            /* --bs-btn-color #0d6efd */
+            filter: invert(37%) sepia(98%) saturate(4632%) hue-rotate(209deg) brightness(101%) contrast(98%);
+        }
+
+        #pigBtn:hover>#pigBtnImg {
+
+            /* --bs-btn-hover-color #fff */
+            filter: invert(99%) sepia(92%) saturate(2%) hue-rotate(150deg) brightness(116%) contrast(100%);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+
+        <!-- Adapt from https://getbootstrap.com/docs/5.3/examples/headers/ -->
+        <header class="d-flex py-3 mb-4 border-bottom">
+            <a href="/"
+                class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+                <span class="display-4 mt-auto">Tao's Investment Manager</h1>
+            </a>
+            <div class="mt-auto">
+                <button type="button" id="pigBtn" class="btn btn-outline-primary btn-lg">
+                    <span class="runIcon">⏵</span>
+                    <img id="pigBtnImg" src="safari-pinned-tab.svg" height="100" />
+                </button>
+            </div>
+        </header>
+
+
+        <div class="row mb-4">
+            <div class="col">
+                <div class="form-floating">
+                    <textarea class="form-control" id="inputCSV" style="height: 500px"></textarea>
+                    <label for="floatingInputGrid">Schwab CSV</label>
+                </div>
+            </div>
+            <div class="col">
+                <div class="form-floating">
+                    <textarea class="form-control" id="inputConfig" style="height: 500px"></textarea>
+                    <label for="floatingInputGrid">Persoanl Config</label>
+                </div>
+            </div>
+            <p class="mb-0"><small>The data shown in this portfolio is for illustrative purposes only and does not
+                    reflect my actual
+                    investments. Please do not consider this as financial advice or guidance.</small></p>
+        </div>
+
+
+        <div class="row mb-4">
+            <table id="plan" class="table table-striped w-auto mb-1"></table>
+
+        </div>
+
+        <div class="row justify-content-around mb-4">
+            <div id="pieBefore" class="col" style="text-align: center;"></div>
+            <div id="pieAfter" class="col" style="text-align: center;"></div>
+        </div>
+        <div class="row mb-4">
+
+            <table id="allEquityInfo" class="table table-striped w-auto table-sm mb-1"></table>
+        </div>
+
+        <p id="planInfo"></p>
+    </div>
+</body>
+
+</html>
