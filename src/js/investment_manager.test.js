@@ -10,11 +10,6 @@ test("test parseDollars", () => {
     expect(parseDollars("0.00")).toBe(0);
 });
 
-
-
-
-
-
 test('test parseSchwabCSV simple', () => {
     // Downloaded from Schwab.
     const SCHWAB_CSV_1 = `

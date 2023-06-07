@@ -149,8 +149,6 @@ export function handleClick() {
         ]
     });
 
-    console.log(plan.planList)
-
     let cash = plan.cash;
     let bufferCash = plan.bufferCash;
     let addValueActual = plan.addValueActual;
