@@ -9,11 +9,11 @@
   "scripts": {
     "test": "node --experimental-vm-modules ./node_modules/.bin/jest",
     "build": "webpack --progress --mode=production",
-    "watch": "webpack --progress --watch",
-    "server": "webpack-dev-server --open",
-    "http-server": "http-server"
+    "dev": "webpack --progress --watch",
+    "serve": "webpack serve --open"
   },
   "devDependencies": {
+    "copy-webpack-plugin": "^11.0.0",
     "jest": "^29.5.0",
     "webpack": "^5.85.1",
     "webpack-cli": "^5.1.3",
