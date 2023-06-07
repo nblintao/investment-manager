@@ -1,13 +1,13 @@
-const investment_manager = require('./investment_manager');
+import { parseDollars, parseSchwabCSV, getAllPrices, inverseMapping, getAllEquityInfo, calculateBuyPlan, runInvestmentManager } from './investment_manager';
 
 test("test parseDollars", () => {
-    expect(investment_manager.parseDollars("$1,234.56")).toBe(1234.56);
-    expect(investment_manager.parseDollars("1,234.56")).toBe(1234.56);
-    expect(investment_manager.parseDollars("1234.56")).toBe(1234.56);
-    expect(investment_manager.parseDollars("$1234.56")).toBe(1234.56);
-    expect(investment_manager.parseDollars("$0")).toBe(0);
-    expect(investment_manager.parseDollars("0")).toBe(0);
-    expect(investment_manager.parseDollars("0.00")).toBe(0);
+    expect(parseDollars("$1,234.56")).toBe(1234.56);
+    expect(parseDollars("1,234.56")).toBe(1234.56);
+    expect(parseDollars("1234.56")).toBe(1234.56);
+    expect(parseDollars("$1234.56")).toBe(1234.56);
+    expect(parseDollars("$0")).toBe(0);
+    expect(parseDollars("0")).toBe(0);
+    expect(parseDollars("0.00")).toBe(0);
 });
 
 
@@ -17,28 +17,28 @@ test("test parseDollars", () => {
 
 test('test parseSchwabCSV simple', () => {
     // Downloaded from Schwab.
-    SCHWAB_CSV_1 = `
+    const SCHWAB_CSV_1 = `
 "Positions for account Personal ...977 as of 07:28 PM ET, 2023/06/04","","","","","","","","","","","","","","","",""
 "","","","","","","","","","","","","","","","",""
 "Symbol","Description","Quantity","Price","Price Change %","Price Change $","Market Value","Day Change %","Day Change $","Cost Basis","Gain/Loss %","Gain/Loss $","Ratings","Reinvest Dividends?","Capital Gains?","% Of Account","Security Type"
 "Cash & Cash Investments","--","--","--","--","--","$0.00","0%","$0.00","--","--","--","--","--","--","N/A","Cash and Money Market"
 "Account Total","--","--","--","--","--","$0.00","0%","$0.00","N/A","N/A","N/A","--","--","--","--","--"
 `
-    expect(investment_manager.parseSchwabCSV(SCHWAB_CSV_1)).toStrictEqual({
+    expect(parseSchwabCSV(SCHWAB_CSV_1)).toStrictEqual({
         cash: 0,
         equities: [],
         totalMarketValue: 0
     });
 
     // Upload 1 to Google Sheets and then export as csv.
-    SCHWAB_CSV_2 = `
+    const SCHWAB_CSV_2 = `
 "Positions for account Personal ...977 as of 07:28 PM ET, 2023/06/04",,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,
 Symbol,Description,Quantity,Price,Price Change %,Price Change $,Market Value,Day Change %,Day Change $,Cost Basis,Gain/Loss %,Gain/Loss $,Ratings,Reinvest Dividends?,Capital Gains?,% Of Account,Security Type
 Cash & Cash Investments,--,--,--,--,--,$0.00,0%,$0.00,--,--,--,--,--,--,N/A,Cash and Money Market
 Account Total,--,--,--,--,--,$0.00,0%,$0.00,N/A,N/A,N/A,--,--,--,--,--
 `
-    expect(investment_manager.parseSchwabCSV(SCHWAB_CSV_2)).toStrictEqual({
+    expect(parseSchwabCSV(SCHWAB_CSV_2)).toStrictEqual({
         cash: 0,
         equities: [],
         totalMarketValue: 0
@@ -46,7 +46,7 @@ Account Total,--,--,--,--,--,$0.00,0%,$0.00,N/A,N/A,N/A,--,--,--,--,--
 });
 
 // Add some more info in 2's Google Sheets and then export as csv.
-SCHWAB_CSV_3 = `
+const SCHWAB_CSV_3 = `
 "Positions for account Personal ...977 as of 07:28 PM ET, 2023/06/04",,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,
 Symbol,Description,Quantity,Price,Price Change %,Price Change $,Market Value,Day Change %,Day Change $,Cost Basis,Gain/Loss %,Gain/Loss $,Ratings,Reinvest Dividends?,Capital Gains?,% Of Account,Security Type
@@ -71,7 +71,7 @@ MUB,,39,105.96,,,4132.44,,,,,,,,,,
 Cash & Cash Investments,--,--,--,--,--,"$123,456.00",0%,$0.00,--,--,--,--,--,--,N/A,Cash and Money Market
 Account Total,--,--,--,--,--,"$269,039.59",0%,$0.00,N/A,N/A,N/A,--,--,--,--,--
 `
-EQUITIES = [
+const EQUITIES = [
     {
         symbol: 'VXF',
         quantity: 35,
@@ -162,7 +162,7 @@ EQUITIES = [
     }
 ]
 test('test parseSchwabCSV complex', () => {
-    expect(investment_manager.parseSchwabCSV(SCHWAB_CSV_3)).toStrictEqual({
+    expect(parseSchwabCSV(SCHWAB_CSV_3)).toStrictEqual({
         cash: 123456,
         totalMarketValue: 269039.59,
         equities: EQUITIES
@@ -170,17 +170,17 @@ test('test parseSchwabCSV complex', () => {
 });
 
 
-ALL_PRICES = {
+const ALL_PRICES = {
     "AAPL": 180.95, "AMZN": 124.25, "GOOG": 125.23, "GOOGL": 124.67, "IEMG": 49.21, "META": 272.61, "MSFT": 335.4, "MUB": 105.96, "NVDA": 393.27, "SCHD": 71.24, "SCHF": 35.51, "TFI": 45.81, "VB": 191.21, "VEA": 45.99, "VIG": 157.27, "VTEB": 49.84, "VTI": 212.72, "VWO": 40.35, "VXF": 143.41, "VXUS": 55.94
 }
 test("test getAllPrices", () => {
-    expect(investment_manager.getAllPrices(
+    expect(getAllPrices(
         EQUITIES,
     )).toStrictEqual({
         "AAPL": 180.95, "AMZN": 124.25, "GOOG": 125.23, "GOOGL": 124.67, "IEMG": 49.21, "META": 272.61, "MSFT": 335.4, "MUB": 105.96, "NVDA": 393.27, "SCHD": 71.24, "SCHF": 35.51, "TFI": 45.81, "VB": 191.21, "VEA": 45.99, "VIG": 157.27, "VTEB": 49.84, "VWO": 40.35, "VXF": 143.41
     });
 
-    expect(investment_manager.getAllPrices(
+    expect(getAllPrices(
         EQUITIES,
         {
             "VTI": 212.72,
@@ -190,7 +190,7 @@ test("test getAllPrices", () => {
 });
 
 
-let MAP_TO = {
+const MAP_TO = {
     VXF: 'VTI',
     VB: 'VTI',
     VIG: 'VTI',
@@ -206,7 +206,7 @@ let MAP_TO = {
     VTEB: 'VTEB'
 }
 test("test inverseMapping", () => {
-    expect(investment_manager.inverseMapping(
+    expect(inverseMapping(
         {
             "VTI": [
                 // US stocks
@@ -230,7 +230,7 @@ test("test inverseMapping", () => {
 });
 
 
-ALL_EQUITY_INFO = [
+const ALL_EQUITY_INFO = [
     {
         symbol: 'VXF',
         quantity: 35,
@@ -392,13 +392,13 @@ ALL_EQUITY_INFO = [
         mapTo: 'VXUS'
     }
 ]
-TARGET_PERCENTAGE = {
+const TARGET_PERCENTAGE = {
     "VTI": 54,
     "VXUS": 36,
     "VTEB": 10
 }
 test("test analyzeAllEquities", () => {
-    expect(investment_manager.getAllEquityInfo(
+    expect(getAllEquityInfo(
         EQUITIES, MAP_TO, "VTI",
         [
             { symbol: 'VTI', quantity: 152.69587 },
@@ -408,7 +408,7 @@ test("test analyzeAllEquities", () => {
         TARGET_PERCENTAGE
     )).toStrictEqual(ALL_EQUITY_INFO);
 });
-PLAN = {
+const PLAN = {
     planList: [
         {
             symbol: 'VTI',
@@ -456,7 +456,7 @@ PLAN = {
     bufferCashActual: 1976.5800000000017
 }
 test("test calculateBuyPlan", () => {
-    expect(investment_manager.calculateBuyPlan(
+    expect(calculateBuyPlan(
         ALL_PRICES,
         ALL_EQUITY_INFO,
         TARGET_PERCENTAGE,
@@ -467,7 +467,7 @@ test("test calculateBuyPlan", () => {
     )).toStrictEqual(PLAN);
 });
 
-PERSONAL_CONFIG = {
+const PERSONAL_CONFIG = {
     hardcodePrice: {
         "VTI": 212.72,
         "VXUS": 55.94
@@ -502,7 +502,7 @@ PERSONAL_CONFIG = {
     },
     bufferCash: 2000
 }
-test("test main", () => {
-    expect(investment_manager.main(SCHWAB_CSV_3, PERSONAL_CONFIG
+test("test runInvestmentManager", () => {
+    expect(runInvestmentManager(SCHWAB_CSV_3, PERSONAL_CONFIG
     )).toStrictEqual([ALL_EQUITY_INFO, PLAN])
 })

@@ -10,218 +10,12 @@
     <meta name="msapplication-TileColor" content="#469eda">
     <meta name="theme-color" content="#ffffff">
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
-    <script src="desvg.js"></script>
-    <script src="investment_manager.js"></script>
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 
-    <script>
-        // This is the main function that handles the button click event
-        function handleClick() {
-            // Get the inputs from the text boxes
-            var inputCSV = document.getElementById("inputCSV").value;
-            var inputConfig = JSON.parse(document.getElementById("inputConfig").value);
-
-            var outputs = main(inputCSV, inputConfig);
-            var allEquityInfo = outputs[0];
-            var plan = outputs[1];
-
-
-            let renderNum = $.fn.dataTable.render.number(',', '.', 3, '');
-
-            let DATA_TABLE_DOM = "<'row mb-0'<'col-sm-12'tr>>" +
-                "<'row justify-content-between '<'col-6'i><'col-6 d-flex justify-content-end'B>>";
-            let DATA_TABLE_BUTTONS = [
-                'copy', 'csv', 'excel', 'pdf', 'print'
-            ]
-
-            $('#allEquityInfo').DataTable({
-                data: allEquityInfo,
-                destroy: true,
-                paging: false,
-                dom: DATA_TABLE_DOM,
-                buttons: DATA_TABLE_BUTTONS,
-                columns: [
-
-                    {
-                        data: 'symbol',
-                        title: 'Symbol',
-                    },
-                    {
-                        data: 'quantity',
-                        title: 'Shares',
-                        render: renderNum,
-                        className: "dt-body-right",
-                    },
-                    {
-                        data: 'price',
-                        title: 'Price$',
-                        render: renderNum,
-                        className: "dt-body-right",
-                    },
-                    {
-                        data: 'marketValue',
-                        title: 'Market Value$',
-                        render: renderNum,
-                        className: "dt-body-right",
-                    },
-                    {
-                        data: 'source',
-                        title: 'Source',
-                    },
-                    {
-                        data: 'mapTo',
-                        title: 'Map To',
-                    },
-                ]
-            });
-
-            $('#plan').DataTable({
-                data: plan.planList,
-                destroy: true,
-                paging: false,
-                dom: DATA_TABLE_DOM,
-                buttons: DATA_TABLE_BUTTONS,
-                columns: [
-                    {
-                        data: 'symbol',
-                        title: 'Symbol',
-                    },
-                    {
-                        data: 'oldMarketValue',
-                        title: 'Old$',
-                        render: renderNum,
-                        className: "dt-body-right",
-                    },
-                    {
-                        data: 'oldPercentage',
-                        title: 'Old%',
-                        render: renderNum,
-                        className: "dt-body-right",
-                    },
-                    {
-                        data: 'expectPercentage',
-                        title: 'Expect%',
-                        render: renderNum,
-                        className: "dt-body-right",
-                    },
-                    {
-                        data: 'expectMarketValue',
-                        title: 'Expect$',
-                        render: renderNum,
-                        className: "dt-body-right",
-                    },
-                    {
-                        data: 'addValueNeeded',
-                        title: 'Add$ (Need)',
-                        render: renderNum,
-                        className: "dt-body-right",
-                    },
-                    {
-                        data: 'price',
-                        title: 'Price$',
-                        render: renderNum,
-                        className: "dt-body-right",
-                    },
-                    {
-                        data: 'addShares',
-                        title: 'Add Shares',
-                        render: renderNum,
-                        className: "dt-body-right",
-                    },
-                    {
-                        data: 'addValueActual',
-                        title: 'Add$ (Actual)',
-                        render: renderNum,
-                        className: "dt-body-right",
-                    },
-                    {
-                        data: 'newMarketValue',
-                        title: 'New$',
-                        render: renderNum,
-                        className: "dt-body-right",
-                    },
-                    {
-                        data: 'newPercentage',
-                        title: 'New%',
-                        render: renderNum,
-                        className: "dt-body-right",
-                    },
-                ]
-            });
-
-            console.log(plan.planList)
-
-            let cash = plan.cash;
-            let bufferCash = plan.bufferCash;
-            let addValueActual = plan.addValueActual;
-            let bufferCashActual = plan.bufferCashActual;
-
-            pieBefore = []
-            pieAfter = []
-            for (let i = 0; i < plan.planList.length; i++) {
-                const e = plan.planList[i];
-                pieBefore.push({ name: e.symbol, value: e.oldMarketValue })
-                pieAfter.push({ name: e.symbol, value: e.newMarketValue })
-            }
-            pieBefore.push({ name: "Cash to Invest", value: cash - bufferCash })
-            pieBefore.push({ name: "Cash Buffer", value: bufferCash })
-
-            pieAfter.push({ name: "", value: 0 })
-            pieAfter.push({ name: "Cash Buffer", value: bufferCashActual })
-
-            WIDTH = 500;
-
-
-            SETTINGS = {
-                name: d => d.name,
-                value: d => d.value,
-                width: WIDTH,
-                height: WIDTH,
-                colors: d3.schemeTableau10,
-                format: "$,.2f"
-            }
-            document.getElementById("pieBefore").appendChild(PieChart(pieBefore, SETTINGS));
-            document.getElementById("pieAfter").appendChild(PieChart(pieAfter, SETTINGS));
-
-            // let fmt = function (num) {
-            //     const options = {
-            //         minimumFractionDigits: 2,
-            //         maximumFractionDigits: 2
-            //     };
-            //     return Number(num).toLocaleString('en', options);
-            // };
-            // document.getElementById("planInfo").innerHTML = `
-            //     Cash Before: ${fmt(cash)}<br/>
-            //     > Invest ${fmt(cash - bufferCash)}<br/>
-            //     > Buffer ${fmt(bufferCash)}<br/>
-            //     Actual Invested: ${fmt(addValueActual)}<br/>
-            //     Cash After: ${fmt(bufferCashActual)}<br/>
-            //     > Buffer ${fmt(bufferCashActual)} <br/>
-            // `
-
-            // Done. Set button back to disabled to show it's completed.
-            document.getElementById("pigBtn").disabled = true;
-        }
-
-        function inputChanged() {
-            document.getElementById("pigBtn").disabled = false;
-        }
-    </script>
-
-
+    <script src="dist/main.js"></script>
     <style>
         header {
             --bs-blue: red
@@ -260,7 +54,7 @@
                 <span class="display-4 mt-auto">Tao's Investment Manager</h1>
             </a>
             <div class="mt-auto">
-                <button type="button" id="pigBtn" class="btn btn-outline-primary btn-lg" onclick="handleClick()">
+                <button type="button" id="pigBtn" class="btn btn-outline-primary btn-lg">
                     <span class="runIcon">⏵</span>
                     <img id="pigBtnImg" src="safari-pinned-tab.svg" height="100" />
                 </button>
@@ -271,15 +65,13 @@
         <div class="row mb-4">
             <div class="col">
                 <div class="form-floating">
-                    <textarea class="form-control" id="inputCSV" style="height: 500px"
-                        onkeyup="inputChanged()"></textarea>
+                    <textarea class="form-control" id="inputCSV" style="height: 500px"></textarea>
                     <label for="floatingInputGrid">Schwab CSV</label>
                 </div>
             </div>
             <div class="col">
                 <div class="form-floating">
-                    <textarea class="form-control" id="inputConfig" style="height: 500px"
-                        onkeyup="inputChanged()"></textarea>
+                    <textarea class="form-control" id="inputConfig" style="height: 500px"></textarea>
                     <label for="floatingInputGrid">Persoanl Config</label>
                 </div>
             </div>
@@ -305,11 +97,6 @@
 
         <p id="planInfo"></p>
     </div>
-    <script>
-        document.getElementById("inputCSV").value = INIT_SCHWAB_CSV
-        document.getElementById("inputConfig").value = JSON.stringify(INIT_PERSONAL_CONFIG, null, 2);
-        handleClick();
-    </script>
 </body>
 
 </html>
