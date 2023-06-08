@@ -3,6 +3,7 @@ export const INIT_PERSONAL_CONFIG = {
         "VTI": 212.70,
         "VXUS": 55.74
     },
+    additionalCash: 0,
     bufferCash: 1000,
     outsideHoldings: [
         { symbol: 'VTI', quantity: 152.69587 },

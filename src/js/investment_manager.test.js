@@ -704,6 +704,7 @@ const PERSONAL_CONFIG = {
         "VXUS": 36,
         "VTEB": 10
     },
+    additionalCash: 0,
     bufferCash: 2000
 }
 test("test runInvestmentManager", () => {

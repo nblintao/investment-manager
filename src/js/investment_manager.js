@@ -6,7 +6,12 @@ function runInvestmentManager(schwabCSV, personalConfig) {
     let mapTo = inverseMapping(personalConfig.mapping);
     let allEquityInfo = getAllEquityInfo(schwab.equities, mapTo, personalConfig.defaultMapTo, personalConfig.outsideHoldings, allPrices, personalConfig.targetPercentage);
     // console.log(allEquityInfo);
-    let plan = calculateBuyPlan(allPrices, allEquityInfo, personalConfig.targetPercentage, schwab.cash, personalConfig.bufferCash);
+    let plan = calculateBuyPlan(
+        allPrices,
+        allEquityInfo,
+        personalConfig.targetPercentage,
+        schwab.cash + personalConfig.additionalCash, personalConfig.bufferCash
+    );
     // console.log(plan);
     return [allEquityInfo, plan];
 }
@@ -252,7 +257,7 @@ function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, buff
         addValueActual: addValueActual,
         bufferCashActual: cash - addValueActual
     }
-    console.log(fullPlan);
+    // console.log(fullPlan);
 
     return fullPlan;
 }
