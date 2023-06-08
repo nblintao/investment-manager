@@ -1,67 +1,5 @@
 import CSVToArray from "./csv_to_array.js"
 
-export const INIT_PERSONAL_CONFIG = {
-    hardcodePrice: {
-        "VTI": 212.72,
-        "VXUS": 55.94
-    },
-    outsideHoldings: [
-        { symbol: 'VTI', quantity: 152.69587 },
-        { symbol: 'VXUS', quantity: 376.48986 },
-    ],
-    mapping: {
-        "VTI": [
-            // US stocks
-            "VXF", "VB",
-            // Dividend growth stocks
-            "VIG", "SCHD"
-        ],
-        "VXUS": [
-            // Foreign developed stocks
-            "VEA", "SCHF",
-            // Emerging market stocks
-            "VWO", "IEMG"
-        ],
-        // Municipal bonds
-        "VTEB": [
-            "TFI", "MUB"
-        ]
-    },
-    defaultMapTo: "VTI",
-    targetPercentage: {
-        "VTI": 54,
-        "VXUS": 36,
-        "VTEB": 10
-    },
-    bufferCash: 2000
-}
-
-export const INIT_SCHWAB_CSV = `
-"Positions for account Personal ...977 as of 07:28 PM ET, 2023/06/04",,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,
-Symbol,Description,Quantity,Price,Price Change %,Price Change $,Market Value,Day Change %,Day Change $,Cost Basis,Gain/Loss %,Gain/Loss $,Ratings,Reinvest Dividends?,Capital Gains?,% Of Account,Security Type
-VXF,,35,143.41,,,5019.35,,,,,,,,,,
-VB,,69,191.21,,,13193.49,,,,,,,,,,
-MSFT,,51,335.4,,,17105.4,,,,,,,,,,
-AAPL,,95,180.95,,,17190.25,,,,,,,,,,
-NVDA,,69,393.27,,,27135.63,,,,,,,,,,
-GOOGL,,82,124.67,,,10222.94,,,,,,,,,,
-AMZN,,6,124.25,,,745.5,,,,,,,,,,
-GOOG,,42,125.23,,,5259.66,,,,,,,,,,
-META,,50,272.61,,,13630.5,,,,,,,,,,
-VEA,,40,45.99,,,1839.6,,,,,,,,,,
-SCHF,,42,35.51,,,1491.42,,,,,,,,,,
-VWO,,30,40.35,,,1210.5,,,,,,,,,,
-IEMG,,89,49.21,,,4379.69,,,,,,,,,,
-VIG,,78,157.27,,,12267.06,,,,,,,,,,
-SCHD,,59,71.24,,,4203.16,,,,,,,,,,
-VTEB,,47,49.84,,,2342.48,,,,,,,,,,
-TFI,,92,45.81,,,4214.52,,,,,,,,,,
-MUB,,39,105.96,,,4132.44,,,,,,,,,,
-Cash & Cash Investments,--,--,--,--,--,"$123,456.00",0%,$0.00,--,--,--,--,--,--,N/A,Cash and Money Market
-Account Total,--,--,--,--,--,"$269,039.59",0%,$0.00,N/A,N/A,N/A,--,--,--,--,--
-`
-
 function runInvestmentManager(schwabCSV, personalConfig) {
     let schwab = parseSchwabCSV(schwabCSV);
     let allPrices = getAllPrices(schwab.equities, personalConfig.hardcodePrice);
@@ -157,9 +95,15 @@ function inverseMapping(mapping) {
     let mapTo = {}
     for (let target in mapping) {
         mapping[target].forEach(source => {
+            if (source in mapTo) {
+                alert(source + " is defined in mapping multiple times")
+            }
             mapTo[source] = target
         });
         // Self should be mapped to itself.
+        if (target in mapTo) {
+            alert(target + " is defined in mapping multiple times")
+        }
         mapTo[target] = target
     }
     return mapTo;
@@ -231,28 +175,76 @@ function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, buff
         oldMarketValue += e.marketValue;
     }
 
-
-    let expectMarketValue = oldMarketValue + cash - bufferCash;
+    let expectAddValue = cash - bufferCash;
+    let expectMarketValue = oldMarketValue + expectAddValue;
+    let totalValue = oldMarketValue + cash
     let addValueActual = 0;
+
     for (let symbol in targetPercentage) {
         let e = plan[symbol];
-        e.oldPercentage = e.oldMarketValue / oldMarketValue * 100;
+        e.oldPercentage = e.oldMarketValue / totalValue * 100;
         e.expectPercentage = targetPercentage[symbol]
         e.expectMarketValue = expectMarketValue * e.expectPercentage / 100;
-        e.addValueNeeded = e.expectMarketValue - e.oldMarketValue
+        e.ableMarketValue = e.expectMarketValue;
+        e.addValueNeeded = e.ableMarketValue - e.oldMarketValue
+    }
+
+    // e.oldMarketValue + e.addValueNeeded always == e.ableMarketValue
+
+    // This section tries to figure out the actual addValueNeeded.
+    // Only distributed across the "remain" equities that are underweighted.
+    let ableMarketValueOfRemain = oldMarketValue + expectAddValue;
+    let targetPercentageOfRemaining = 100;
+    var s = new Set(Object.keys(targetPercentage))
+    while (true) {
+        let equityRemoved = false;
+        for (let e of s) {
+            if (plan[e].addValueNeeded < 0) {
+                plan[e].addValueNeeded = 0;
+                plan[e].ableMarketValue = plan[e].oldMarketValue
+
+                ableMarketValueOfRemain -= plan[e].oldMarketValue;
+                targetPercentageOfRemaining -= plan[e].expectPercentage;
+                s.delete(e);
+                equityRemoved = true;
+            }
+        }
+        if (!equityRemoved) {
+            break;
+        }
+        for (let e of s) {
+            plan[e].ableMarketValue = ableMarketValueOfRemain * plan[e].expectPercentage / targetPercentageOfRemaining;
+            plan[e].addValueNeeded = plan[e].ableMarketValue - plan[e].oldMarketValue;
+        }
+    }
+
+    for (let symbol in targetPercentage) {
+        let e = plan[symbol];
         e.price = allPrices[symbol];
         e.addShares = Math.round(e.addValueNeeded / e.price)
         e.addValueActual = e.price * e.addShares;
         addValueActual += e.addValueActual;
         e.newMarketValue = e.oldMarketValue + e.addValueActual;
-        e.newPercentage = e.newMarketValue / expectMarketValue * 100
+        e.newPercentage = e.newMarketValue / totalValue * 100
     }
-
-
     let planList = []
     for (let symbol in plan) {
         planList.push(plan[symbol]);
     }
+    planList.push({
+        symbol: 'Cash',
+        oldMarketValue: cash,
+        oldPercentage: cash / totalValue * 100,
+        expectPercentage: null,
+        expectMarketValue: bufferCash,
+        ableMarketValue: null,
+        addValueNeeded: null,
+        price: null,
+        addShares: null,
+        addValueActual: -addValueActual,
+        newMarketValue: cash - addValueActual,
+        newPercentage: (cash - addValueActual) / totalValue * 100
+    })
     const fullPlan = {
         planList: planList,
         cash: cash,
@@ -261,6 +253,7 @@ function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, buff
         bufferCashActual: cash - addValueActual
     }
     // console.log(fullPlan);
+
     return fullPlan;
 }
 
@@ -271,3 +264,4 @@ function parseDollars(str) {
 }
 
 export { parseDollars, parseSchwabCSV, getAllPrices, inverseMapping, getAllEquityInfo, calculateBuyPlan, runInvestmentManager };
+

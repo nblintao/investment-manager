@@ -411,6 +411,7 @@ const PLAN = {
             oldPercentage: 79.57498591145485,
             expectPercentage: 54,
             expectMarketValue: 173114.22504679204,
+            ableMarketValue: 173114.22504679204,
             addValueNeeded: 14659.81958039201,
             price: 212.72,
             addShares: 69,
@@ -424,6 +425,7 @@ const PLAN = {
             oldPercentage: 15.056832403109391,
             expectPercentage: 36,
             expectMarketValue: 115409.483364528,
+            ableMarketValue: 115409.483364528,
             addValueNeeded: 85427.430596128,
             price: 55.94,
             addShares: 1527,
@@ -437,6 +439,7 @@ const PLAN = {
             oldPercentage: 5.368181685435767,
             expectPercentage: 10,
             expectMarketValue: 32058.189823480003,
+            ableMarketValue: 32058.189823480003,
             addValueNeeded: 21368.749823480004,
             price: 49.84,
             addShares: 429,
@@ -450,7 +453,7 @@ const PLAN = {
     addValueActual: 121479.42,
     bufferCashActual: 1976.5800000000017
 }
-test("test calculateBuyPlan", () => {
+test("test calculateBuyPlan sufficient", () => {
     expect(calculateBuyPlan(
         ALL_PRICES,
         ALL_EQUITY_INFO,
@@ -461,6 +464,170 @@ test("test calculateBuyPlan", () => {
         2000
     )).toStrictEqual(PLAN);
 });
+
+
+
+
+
+const SIMPLE_PRICE = {
+    "VTI": 1,
+    "VXUS": 1,
+    "VTEB": 1
+};
+const SIMPLE_EQUITY_INFO = [
+    {
+        symbol: 'VTI',
+        quantity: 66,
+        price: 1,
+        marketValue: 66,
+        source: 'Schwab',
+        mapTo: 'VTI'
+    },
+    {
+        symbol: 'VXUS',
+        quantity: 33,
+        price: 1,
+        marketValue: 33,
+        source: 'Schwab',
+        mapTo: 'VXUS'
+    },
+    {
+        symbol: 'VTEB',
+        quantity: 1,
+        price: 1,
+        marketValue: 1,
+        source: 'Schwab',
+        mapTo: 'VTEB'
+    }
+]
+test("test calculateBuyPlan insufficient 1 added", () => {
+    expect(calculateBuyPlan(
+        SIMPLE_PRICE,
+        SIMPLE_EQUITY_INFO,
+        TARGET_PERCENTAGE,
+        // cash
+        1,
+        // remain cash
+        0
+    )).toStrictEqual({
+        planList: [
+            {
+                symbol: 'VTI',
+                oldMarketValue: 66,
+                oldPercentage: 66,
+                expectPercentage: 54,
+                expectMarketValue: 54.54,
+                ableMarketValue: 66,
+                addValueNeeded: 0,
+                price: 1,
+                addShares: 0,
+                addValueActual: 0,
+                newMarketValue: 66,
+                newPercentage: 65.34653465346535
+            },
+            {
+                symbol: 'VXUS',
+                oldMarketValue: 33,
+                oldPercentage: 33,
+                expectPercentage: 36,
+                expectMarketValue: 36.36,
+                ableMarketValue: 33,
+                addValueNeeded: 0,
+                price: 1,
+                addShares: 0,
+                addValueActual: 0,
+                newMarketValue: 33,
+                newPercentage: 32.67326732673268
+            },
+            {
+                symbol: 'VTEB',
+                oldMarketValue: 1,
+                oldPercentage: 1,
+                expectPercentage: 10,
+                expectMarketValue: 10.1,
+                ableMarketValue: 2,
+                addValueNeeded: 1,
+                price: 1,
+                addShares: 1,
+                addValueActual: 1,
+                newMarketValue: 2,
+                newPercentage: 1.9801980198019802
+            }
+        ],
+        cash: 1,
+        bufferCash: 0,
+        addValueActual: 1,
+        bufferCashActual: 0
+    });
+});
+
+
+test("test calculateBuyPlan insufficient 2 added", () => {
+    expect(calculateBuyPlan(
+        SIMPLE_PRICE,
+        SIMPLE_EQUITY_INFO,
+        TARGET_PERCENTAGE,
+        // cash
+        20,
+        // remain cash
+        0
+    )).toStrictEqual(
+        {
+            planList: [
+                {
+                    symbol: 'VTI',
+                    oldMarketValue: 66,
+                    oldPercentage: 66,
+                    expectPercentage: 54,
+                    expectMarketValue: 64.8,
+                    ableMarketValue: 66,
+                    addValueNeeded: 0,
+                    price: 1,
+                    addShares: 0,
+                    addValueActual: 0,
+                    newMarketValue: 66,
+                    newPercentage: 55.00000000000001
+                },
+                {
+                    symbol: 'VXUS',
+                    oldMarketValue: 33,
+                    oldPercentage: 33,
+                    expectPercentage: 36,
+                    expectMarketValue: 43.2,
+                    ableMarketValue: 42.26086956521739,
+                    addValueNeeded: 9.26086956521739,
+                    price: 1,
+                    addShares: 9,
+                    addValueActual: 9,
+                    newMarketValue: 42,
+                    newPercentage: 35
+                },
+                {
+                    symbol: 'VTEB',
+                    oldMarketValue: 1,
+                    oldPercentage: 1,
+                    expectPercentage: 10,
+                    expectMarketValue: 12,
+                    ableMarketValue: 11.73913043478261,
+                    addValueNeeded: 10.73913043478261,
+                    price: 1,
+                    addShares: 11,
+                    addValueActual: 11,
+                    newMarketValue: 12,
+                    newPercentage: 10
+                }
+            ],
+            cash: 20,
+            bufferCash: 0,
+            addValueActual: 20,
+            bufferCashActual: 0
+        }
+    );
+    // Note that VXUS/VTEB ableMarketValue ratio: 42.26086956521739 / 11.73913043478261 is equal to their ableMarketValue ratio 36 / 10
+});
+
+
+
 
 const PERSONAL_CONFIG = {
     hardcodePrice: {

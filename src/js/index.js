@@ -1,4 +1,5 @@
-import { runInvestmentManager, INIT_SCHWAB_CSV, INIT_PERSONAL_CONFIG } from "./investment_manager.js"
+import { runInvestmentManager } from "./investment_manager.js"
+import { INIT_SCHWAB_CSV, INIT_PERSONAL_CONFIG } from "./default_values.js"
 import * as d3 from "d3";
 import PieChart from "./pie_chart.js"
 
@@ -75,44 +76,61 @@ export function handleClick() {
         ]
     });
 
+    // Keep the orignail order at the beginning.
+    for (let i = 0; i < plan.planList.length; i++) {
+        const e = plan.planList[i];
+        e.originalOrder = i;
+    }
     new DataTable('#plan', {
         data: plan.planList,
+        order: [[0, 'asc']],
         destroy: true,
         paging: false,
         dom: DATA_TABLE_DOM,
         buttons: DATA_TABLE_BUTTONS,
         columns: [
             {
+                data: 'originalOrder',
+                visible: false,
+                searchable: false
+            },
+            {
                 data: 'symbol',
                 title: 'Symbol',
             },
             {
                 data: 'oldMarketValue',
-                title: 'Old$',
+                title: 'Old $',
                 render: renderNum,
                 className: "dt-body-right",
             },
             {
                 data: 'oldPercentage',
-                title: 'Old%',
+                title: 'Old %',
                 render: renderNum,
                 className: "dt-body-right",
             },
             {
                 data: 'expectPercentage',
-                title: 'Expect%',
+                title: 'Expect %',
                 render: renderNum,
                 className: "dt-body-right",
             },
             {
                 data: 'expectMarketValue',
-                title: 'Expect$',
+                title: 'Expect $',
+                render: renderNum,
+                className: "dt-body-right",
+            },
+            {
+                data: 'ableMarketValue',
+                title: 'Able $',
                 render: renderNum,
                 className: "dt-body-right",
             },
             {
                 data: 'addValueNeeded',
-                title: 'Add$ (Need)',
+                title: 'Able Add$',
                 render: renderNum,
                 className: "dt-body-right",
             },
@@ -130,19 +148,19 @@ export function handleClick() {
             },
             {
                 data: 'addValueActual',
-                title: 'Add$ (Actual)',
+                title: 'Add $',
                 render: renderNum,
                 className: "dt-body-right",
             },
             {
                 data: 'newMarketValue',
-                title: 'New$',
+                title: 'New $',
                 render: renderNum,
                 className: "dt-body-right",
             },
             {
                 data: 'newPercentage',
-                title: 'New%',
+                title: 'New %',
                 render: renderNum,
                 className: "dt-body-right",
             },
@@ -156,16 +174,20 @@ export function handleClick() {
 
     let pieBefore = []
     let pieAfter = []
+    let pieExpect = []
     for (let i = 0; i < plan.planList.length; i++) {
         const e = plan.planList[i];
         pieBefore.push({ name: e.symbol, value: e.oldMarketValue })
         pieAfter.push({ name: e.symbol, value: e.newMarketValue })
+        if (e.expectPercentage) {
+            pieExpect.push({ name: e.symbol, value: e.expectPercentage / 100 })
+        }
     }
-    pieBefore.push({ name: "Cash to Invest", value: cash - bufferCash })
-    pieBefore.push({ name: "Cash Buffer", value: bufferCash })
+    // pieBefore.push({ name: "Cash to Invest", value: cash - bufferCash })
+    // pieBefore.push({ name: "Cash Buffer", value: bufferCash })
 
-    pieAfter.push({ name: "", value: 0 })
-    pieAfter.push({ name: "Cash Buffer", value: bufferCashActual })
+    // pieAfter.push({ name: "", value: 0 })
+    // pieAfter.push({ name: "Cash Buffer", value: bufferCashActual })
 
     const WIDTH = 500;
 
@@ -178,24 +200,10 @@ export function handleClick() {
         colors: d3.schemeTableau10,
         format: "$,.2f"
     }
-    document.getElementById("pieBefore").appendChild(PieChart(pieBefore, SETTINGS));
-    document.getElementById("pieAfter").appendChild(PieChart(pieAfter, SETTINGS));
-
-    // let fmt = function (num) {
-    //     const options = {
-    //         minimumFractionDigits: 2,
-    //         maximumFractionDigits: 2
-    //     };
-    //     return Number(num).toLocaleString('en', options);
-    // };
-    // document.getElementById("planInfo").innerHTML = `
-    //     Cash Before: ${fmt(cash)}<br/>
-    //     > Invest ${fmt(cash - bufferCash)}<br/>
-    //     > Buffer ${fmt(bufferCash)}<br/>
-    //     Actual Invested: ${fmt(addValueActual)}<br/>
-    //     Cash After: ${fmt(bufferCashActual)}<br/>
-    //     > Buffer ${fmt(bufferCashActual)} <br/>
-    // `
+    document.getElementById("pieBefore").replaceChildren(PieChart(pieBefore, SETTINGS));
+    document.getElementById("pieAfter").replaceChildren(PieChart(pieAfter, SETTINGS));
+    SETTINGS.format = ".0%"
+    document.getElementById("pieExpect").replaceChildren(PieChart(pieExpect, SETTINGS));
 
     // Done. Set button back to disabled to show it's completed.
     document.getElementById("pigBtn").disabled = true;
