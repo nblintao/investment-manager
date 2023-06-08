@@ -27,7 +27,7 @@ export function handleClick() {
     var plan = outputs[1];
 
 
-    let renderNum = DataTable.render.number(',', '.', 3, '');
+    let renderNum = DataTable.render.number(',', '.', 2, '');
 
     let DATA_TABLE_DOM = "<'row mb-0'<'col-sm-12'tr>>" +
         "<'row justify-content-between '<'col-6'i><'col-6 d-flex justify-content-end'B>>";
