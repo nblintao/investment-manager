@@ -1,8 +1,4 @@
 export const INIT_PERSONAL_CONFIG = {
-    hardcodePrice: {
-        "VTI": 212.70,
-        "VXUS": 55.74
-    },
     additionalCash: 0,
     bufferCash: 1000,
     outsideHoldings: [
@@ -13,6 +9,8 @@ export const INIT_PERSONAL_CONFIG = {
         "VTI": 54,
         "VXUS": 36,
         "VTEB": 10
+    },
+    hardcodePrice: {
     },
     defaultMapTo: null,
     mapping: {
@@ -59,6 +57,8 @@ SCHD,,59,71.24,,,4203.16,,,,,,,,,,
 VTEB,,47,49.84,,,2342.48,,,,,,,,,,
 TFI,,92,45.81,,,4214.52,,,,,,,,,,
 MUB,,39,105.96,,,4132.44,,,,,,,,,,
+VTI,,1,212.70,,,212.70,,,,,,,,,,
+VXUS,,1,55.74,,,55.74,,,,,,,,,,
 Cash & Cash Investments,--,--,--,--,--,"$50,000.00",0%,$0.00,--,--,--,--,--,--,N/A,Cash and Money Market
 Account Total,--,--,--,--,--,"$999,999.99",0%,$0.00,N/A,N/A,N/A,--,--,--,--,--
 `
