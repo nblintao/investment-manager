@@ -408,7 +408,7 @@ const PLAN = {
         {
             symbol: 'VTI',
             oldMarketValue: 158454.40546640003,
-            oldPercentage: 79.57498591145485,
+            oldPercentage: 49.12067488395294,
             expectPercentage: 54,
             expectMarketValue: 173114.22504679204,
             ableMarketValue: 173114.22504679204,
@@ -417,12 +417,12 @@ const PLAN = {
             addShares: 69,
             addValueActual: 14677.68,
             newMarketValue: 173132.08546640002,
-            newPercentage: 54.00557125018797
+            newPercentage: 53.67073800910587
         },
         {
             symbol: 'VXUS',
             oldMarketValue: 29982.0527684,
-            oldPercentage: 15.056832403109391,
+            oldPercentage: 9.294400253847085,
             expectPercentage: 36,
             expectMarketValue: 115409.483364528,
             ableMarketValue: 115409.483364528,
@@ -431,12 +431,12 @@ const PLAN = {
             addShares: 1527,
             addValueActual: 85420.37999999999,
             newMarketValue: 115402.43276839999,
-            newPercentage: 35.99780068800926
+            newPercentage: 35.77461519071389
         },
         {
             symbol: 'VTEB',
             oldMarketValue: 10689.439999999999,
-            oldPercentage: 5.368181685435767,
+            oldPercentage: 3.3137135277874146,
             expectPercentage: 10,
             expectMarketValue: 32058.189823480003,
             ableMarketValue: 32058.189823480003,
@@ -445,7 +445,21 @@ const PLAN = {
             addShares: 429,
             addValueActual: 21381.36,
             newMarketValue: 32070.8,
-            newPercentage: 10.003933527310629
+            newPercentage: 9.941909380375831
+        },
+        {
+            symbol: 'Cash',
+            oldMarketValue: 123456,
+            oldPercentage: 38.27121133441257,
+            expectPercentage: null,
+            expectMarketValue: 2000,
+            ableMarketValue: null,
+            addValueNeeded: null,
+            price: null,
+            addShares: null,
+            addValueActual: -121479.42,
+            newMarketValue: 1976.5800000000017,
+            newPercentage: 0.6127374198044102
         }
     ],
     cash: 123456,
@@ -514,7 +528,7 @@ test("test calculateBuyPlan insufficient 1 added", () => {
             {
                 symbol: 'VTI',
                 oldMarketValue: 66,
-                oldPercentage: 66,
+                oldPercentage: 65.34653465346535,
                 expectPercentage: 54,
                 expectMarketValue: 54.54,
                 ableMarketValue: 66,
@@ -528,7 +542,7 @@ test("test calculateBuyPlan insufficient 1 added", () => {
             {
                 symbol: 'VXUS',
                 oldMarketValue: 33,
-                oldPercentage: 33,
+                oldPercentage: 32.67326732673268,
                 expectPercentage: 36,
                 expectMarketValue: 36.36,
                 ableMarketValue: 33,
@@ -542,7 +556,7 @@ test("test calculateBuyPlan insufficient 1 added", () => {
             {
                 symbol: 'VTEB',
                 oldMarketValue: 1,
-                oldPercentage: 1,
+                oldPercentage: 0.9900990099009901,
                 expectPercentage: 10,
                 expectMarketValue: 10.1,
                 ableMarketValue: 2,
@@ -552,6 +566,20 @@ test("test calculateBuyPlan insufficient 1 added", () => {
                 addValueActual: 1,
                 newMarketValue: 2,
                 newPercentage: 1.9801980198019802
+            },
+            {
+                symbol: 'Cash',
+                oldMarketValue: 1,
+                oldPercentage: 0.9900990099009901,
+                expectPercentage: null,
+                expectMarketValue: 0,
+                ableMarketValue: null,
+                addValueNeeded: null,
+                price: null,
+                addShares: null,
+                addValueActual: -1,
+                newMarketValue: 0,
+                newPercentage: 0
             }
         ],
         cash: 1,
@@ -577,7 +605,7 @@ test("test calculateBuyPlan insufficient 2 added", () => {
                 {
                     symbol: 'VTI',
                     oldMarketValue: 66,
-                    oldPercentage: 66,
+                    oldPercentage: 55.00000000000001,
                     expectPercentage: 54,
                     expectMarketValue: 64.8,
                     ableMarketValue: 66,
@@ -591,7 +619,7 @@ test("test calculateBuyPlan insufficient 2 added", () => {
                 {
                     symbol: 'VXUS',
                     oldMarketValue: 33,
-                    oldPercentage: 33,
+                    oldPercentage: 27.500000000000004,
                     expectPercentage: 36,
                     expectMarketValue: 43.2,
                     ableMarketValue: 42.26086956521739,
@@ -605,7 +633,7 @@ test("test calculateBuyPlan insufficient 2 added", () => {
                 {
                     symbol: 'VTEB',
                     oldMarketValue: 1,
-                    oldPercentage: 1,
+                    oldPercentage: 0.8333333333333334,
                     expectPercentage: 10,
                     expectMarketValue: 12,
                     ableMarketValue: 11.73913043478261,
@@ -615,6 +643,20 @@ test("test calculateBuyPlan insufficient 2 added", () => {
                     addValueActual: 11,
                     newMarketValue: 12,
                     newPercentage: 10
+                },
+                {
+                    symbol: 'Cash',
+                    oldMarketValue: 20,
+                    oldPercentage: 16.666666666666664,
+                    expectPercentage: null,
+                    expectMarketValue: 0,
+                    ableMarketValue: null,
+                    addValueNeeded: null,
+                    price: null,
+                    addShares: null,
+                    addValueActual: -20,
+                    newMarketValue: 0,
+                    newPercentage: 0
                 }
             ],
             cash: 20,

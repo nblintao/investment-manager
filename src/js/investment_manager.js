@@ -252,7 +252,7 @@ function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, buff
         addValueActual: addValueActual,
         bufferCashActual: cash - addValueActual
     }
-    // console.log(fullPlan);
+    console.log(fullPlan);
 
     return fullPlan;
 }
