@@ -18,17 +18,25 @@
     <script src="main.js"></script>
     <style>
         /* Use CSS filter generator to convert from black to target hex color: https://codepen.io/sosuke/pen/Pjoqqp */
-        #pigBtnImg {
+        :root {
             /* Schwab color: #469EDA */
-            /* filter: invert(60%) sepia(48%) saturate(1010%) hue-rotate(177deg) brightness(90%) contrast(90%); */
+            --balck-to-schwab-blue: invert(60%) sepia(48%) saturate(1010%) hue-rotate(177deg) brightness(90%) contrast(90%);
             /* --bs-btn-color #0d6efd */
-            filter: invert(37%) sepia(98%) saturate(4632%) hue-rotate(209deg) brightness(101%) contrast(98%);
+            --balck-to-blue: invert(37%) sepia(98%) saturate(4632%) hue-rotate(209deg) brightness(101%) contrast(98%);
+            /* --bs-btn-hover-color #fff */
+            --balck-to-white: invert(99%) sepia(92%) saturate(2%) hue-rotate(150deg) brightness(116%) contrast(100%);
+        }
+
+        #pigBtnImg {
+            filter: var(--balck-to-blue);
         }
 
         #pigBtn:hover>#pigBtnImg {
+            filter: var(--balck-to-white);
+        }
 
-            /* --bs-btn-hover-color #fff */
-            filter: invert(99%) sepia(92%) saturate(2%) hue-rotate(150deg) brightness(116%) contrast(100%);
+        #pigBtn:disabled>#pigBtnImg {
+            filter: var(--balck-to-blue);
         }
     </style>
 </head>
