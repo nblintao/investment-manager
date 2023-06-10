@@ -17,7 +17,7 @@ import DataTable from 'datatables.net-dt';
 // DataTable.Buttons.pdfMake(PDFMake);
 
 // This is the main function that handles the button click event
-export function handleClick() {
+function handleClick() {
     // Get the inputs from the text boxes
     var inputCSV = document.getElementById("inputCSV").value;
     var inputConfig = JSON.parse(document.getElementById("inputConfig").value);
@@ -209,23 +209,43 @@ export function handleClick() {
     document.getElementById("pigBtn").disabled = true;
 }
 
-export function inputChanged() {
+function inputChanged() {
     document.getElementById("pigBtn").disabled = false;
 }
 
+function dropFile(dropEvent, element) {
+    dropEvent.preventDefault();
+
+    var file = dropEvent.dataTransfer.files[0];
+    var reader = new FileReader();
+    reader.onload = function (readEvent) {
+        element.value = readEvent.target.result;
+        inputChanged();
+    };
+    reader.readAsText(file);
+
+    return false;
+}
 
 
 window.addEventListener("DOMContentLoaded", function () {
     const inputCSV = document.getElementById("inputCSV");
     inputCSV.addEventListener("keyup", inputChanged);
-    inputCSV.value = INIT_SCHWAB_CSV
-
+    inputCSV.ondrop = function (dropEvent) {
+        return dropFile(dropEvent, inputCSV);
+    };
 
     const inputConfig = document.getElementById("inputConfig");
     inputConfig.addEventListener("keyup", inputChanged);
-    inputConfig.value = JSON.stringify(INIT_PERSONAL_CONFIG, null, 2);
-    handleClick();
+    inputConfig.ondrop = function (dropEvent) {
+        return dropFile(dropEvent, inputConfig);
+    };
 
     const pigBtn = document.getElementById("pigBtn");
     pigBtn.addEventListener("click", handleClick);
+
+    inputCSV.value = INIT_SCHWAB_CSV
+    inputConfig.value = JSON.stringify(INIT_PERSONAL_CONFIG, null, 2);
+    handleClick();
+
 }, false);
