@@ -414,10 +414,8 @@ const PLAN = {
             ableMarketValue: 173114.22504679204,
             addValueNeeded: 14659.81958039201,
             price: 212.72,
-            addShares: 69,
-            addValueActual: 14677.68,
-            newMarketValue: 173132.08546640002,
-            newPercentage: 53.67073800910587
+            addShares: 68.91603789202712,
+            newPercentage: 53.66520130053489
         },
         {
             symbol: 'VXUS',
@@ -428,10 +426,8 @@ const PLAN = {
             ableMarketValue: 115409.483364528,
             addValueNeeded: 85427.430596128,
             price: 55.94,
-            addShares: 1527,
-            addValueActual: 85420.37999999999,
-            newMarketValue: 115402.43276839999,
-            newPercentage: 35.77461519071389
+            addShares: 1527.1260385435826,
+            newPercentage: 35.77680086702325
         },
         {
             symbol: 'VTEB',
@@ -442,31 +438,23 @@ const PLAN = {
             ableMarketValue: 32058.189823480003,
             addValueNeeded: 21368.749823480004,
             price: 49.84,
-            addShares: 429,
-            addValueActual: 21381.36,
-            newMarketValue: 32070.8,
-            newPercentage: 9.941909380375831
+            addShares: 428.74698682744787,
+            newPercentage: 9.938000240839793
         },
         {
             symbol: 'Cash',
             oldMarketValue: 123456,
             oldPercentage: 38.27121133441257,
             expectPercentage: null,
-            expectMarketValue: 2000,
-            ableMarketValue: null,
-            addValueNeeded: null,
+            expectMarketValue: null,
+            ableMarketValue: 2000,
+            addValueNeeded: -121456,
             price: null,
             addShares: null,
-            addValueActual: -121479.42,
-            newMarketValue: 1976.5800000000017,
-            newPercentage: 0.6127374198044102
+            newPercentage: 0.6199975916020698
         }
-    ],
-    cash: 123456,
-    bufferCash: 2000,
-    addValueActual: 121479.42,
-    bufferCashActual: 1976.5800000000017
-}
+    ]
+};
 test("test calculateBuyPlan sufficient", () => {
     expect(calculateBuyPlan(
         ALL_PRICES,
@@ -535,8 +523,6 @@ test("test calculateBuyPlan insufficient 1 added", () => {
                 addValueNeeded: 0,
                 price: 1,
                 addShares: 0,
-                addValueActual: 0,
-                newMarketValue: 66,
                 newPercentage: 65.34653465346535
             },
             {
@@ -549,8 +535,6 @@ test("test calculateBuyPlan insufficient 1 added", () => {
                 addValueNeeded: 0,
                 price: 1,
                 addShares: 0,
-                addValueActual: 0,
-                newMarketValue: 33,
                 newPercentage: 32.67326732673268
             },
             {
@@ -563,8 +547,6 @@ test("test calculateBuyPlan insufficient 1 added", () => {
                 addValueNeeded: 1,
                 price: 1,
                 addShares: 1,
-                addValueActual: 1,
-                newMarketValue: 2,
                 newPercentage: 1.9801980198019802
             },
             {
@@ -572,20 +554,14 @@ test("test calculateBuyPlan insufficient 1 added", () => {
                 oldMarketValue: 1,
                 oldPercentage: 0.9900990099009901,
                 expectPercentage: null,
-                expectMarketValue: 0,
-                ableMarketValue: null,
-                addValueNeeded: null,
+                expectMarketValue: null,
+                ableMarketValue: 0,
+                addValueNeeded: -1,
                 price: null,
                 addShares: null,
-                addValueActual: -1,
-                newMarketValue: 0,
                 newPercentage: 0
             }
-        ],
-        cash: 1,
-        bufferCash: 0,
-        addValueActual: 1,
-        bufferCashActual: 0
+        ]
     });
 });
 
@@ -612,8 +588,6 @@ test("test calculateBuyPlan insufficient 2 added", () => {
                     addValueNeeded: 0,
                     price: 1,
                     addShares: 0,
-                    addValueActual: 0,
-                    newMarketValue: 66,
                     newPercentage: 55.00000000000001
                 },
                 {
@@ -625,10 +599,8 @@ test("test calculateBuyPlan insufficient 2 added", () => {
                     ableMarketValue: 42.26086956521739,
                     addValueNeeded: 9.26086956521739,
                     price: 1,
-                    addShares: 9,
-                    addValueActual: 9,
-                    newMarketValue: 42,
-                    newPercentage: 35
+                    addShares: 9.26086956521739,
+                    newPercentage: 35.21739130434783
                 },
                 {
                     symbol: 'VTEB',
@@ -639,31 +611,24 @@ test("test calculateBuyPlan insufficient 2 added", () => {
                     ableMarketValue: 11.73913043478261,
                     addValueNeeded: 10.73913043478261,
                     price: 1,
-                    addShares: 11,
-                    addValueActual: 11,
-                    newMarketValue: 12,
-                    newPercentage: 10
+                    addShares: 10.73913043478261,
+                    newPercentage: 9.782608695652174
                 },
                 {
                     symbol: 'Cash',
                     oldMarketValue: 20,
                     oldPercentage: 16.666666666666664,
                     expectPercentage: null,
-                    expectMarketValue: 0,
-                    ableMarketValue: null,
-                    addValueNeeded: null,
+                    expectMarketValue: null,
+                    ableMarketValue: 0,
+                    addValueNeeded: -20,
                     price: null,
                     addShares: null,
-                    addValueActual: -20,
-                    newMarketValue: 0,
                     newPercentage: 0
                 }
-            ],
-            cash: 20,
-            bufferCash: 0,
-            addValueActual: 20,
-            bufferCashActual: 0
+            ]
         }
+
     );
     // Note that VXUS/VTEB ableMarketValue ratio: 42.26086956521739 / 11.73913043478261 is equal to their ableMarketValue ratio 36 / 10
 });

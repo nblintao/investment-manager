@@ -226,11 +226,13 @@ function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, buff
     for (let symbol in targetPercentage) {
         let e = plan[symbol];
         e.price = allPrices[symbol];
-        e.addShares = Math.round(e.addValueNeeded / e.price)
-        e.addValueActual = e.price * e.addShares;
-        addValueActual += e.addValueActual;
-        e.newMarketValue = e.oldMarketValue + e.addValueActual;
-        e.newPercentage = e.newMarketValue / totalValue * 100
+        // e.addShares = Math.round(e.addValueNeeded / e.price)
+        e.addShares = e.addValueNeeded / e.price
+        // e.addValueActual = e.price * e.addShares;
+        // addValueActual += e.addValueActual;
+        // e.newMarketValue = e.oldMarketValue + e.addValueActual;
+        // e.newPercentage = e.newMarketValue / totalValue * 100
+        e.newPercentage = e.ableMarketValue / totalValue * 100
     }
     let planList = []
     for (let symbol in plan) {
@@ -241,23 +243,27 @@ function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, buff
         oldMarketValue: cash,
         oldPercentage: cash / totalValue * 100,
         expectPercentage: null,
-        expectMarketValue: bufferCash,
-        ableMarketValue: null,
-        addValueNeeded: null,
+        // expectMarketValue: bufferCash,
+        expectMarketValue: null,
+        // ableMarketValue: null,
+        ableMarketValue: bufferCash,
+        // addValueNeeded: null,
+        addValueNeeded: -expectAddValue,
         price: null,
         addShares: null,
-        addValueActual: -addValueActual,
-        newMarketValue: cash - addValueActual,
-        newPercentage: (cash - addValueActual) / totalValue * 100
+        // addValueActual: -addValueActual,
+        // newMarketValue: cash - addValueActual,
+        // newPercentage: (cash - addValueActual) / totalValue * 100
+        newPercentage: bufferCash / totalValue * 100
     })
     const fullPlan = {
         planList: planList,
-        cash: cash,
-        bufferCash: bufferCash,
-        addValueActual: addValueActual,
-        bufferCashActual: cash - addValueActual
+        // cash: cash,
+        // bufferCash: bufferCash,
+        // addValueActual: addValueActual,
+        // bufferCashActual: cash - addValueActual
     }
-    // console.log(fullPlan);
+    console.log(fullPlan);
 
     return fullPlan;
 }

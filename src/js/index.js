@@ -28,6 +28,7 @@ function handleClick() {
 
 
     let renderNum = DataTable.render.number(',', '.', 2, '');
+    let renderPerNum = DataTable.render.number(',', '.', 1, '');
 
     let DATA_TABLE_DOM = "<'row mb-0'<'col-sm-12'tr>>" +
         "<'row justify-content-between '<'col-6'i><'col-6 d-flex justify-content-end'B>>";
@@ -100,70 +101,71 @@ function handleClick() {
             },
             {
                 data: 'oldMarketValue',
-                title: 'Old $',
+                title: 'Before/$',
                 render: renderNum,
                 className: "dt-body-right",
             },
             {
                 data: 'oldPercentage',
-                title: 'Old %',
+                title: 'Before/%',
+                render: renderPerNum,
+                className: "dt-body-right",
+            },
+            {
+                data: 'expectMarketValue',
+                title: 'Expect/$',
                 render: renderNum,
                 className: "dt-body-right",
             },
             {
                 data: 'expectPercentage',
-                title: 'Expect %',
-                render: renderNum,
-                className: "dt-body-right",
-            },
-            {
-                data: 'expectMarketValue',
-                title: 'Expect $',
-                render: renderNum,
+                title: 'Expect/%',
+                render: renderPerNum,
                 className: "dt-body-right",
             },
             {
                 data: 'ableMarketValue',
-                title: 'Able $',
-                render: renderNum,
-                className: "dt-body-right",
-            },
-            {
-                data: 'addValueNeeded',
-                title: 'Able Add$',
-                render: renderNum,
-                className: "dt-body-right",
-            },
-            {
-                data: 'price',
-                title: 'Price$',
-                render: renderNum,
-                className: "dt-body-right",
-            },
-            {
-                data: 'addShares',
-                title: 'Add Shares',
-                render: renderNum,
-                className: "dt-body-right",
-            },
-            {
-                data: 'addValueActual',
-                title: 'Add $',
-                render: renderNum,
-                className: "dt-body-right",
-            },
-            {
-                data: 'newMarketValue',
-                title: 'New $',
+                title: 'After/$',
                 render: renderNum,
                 className: "dt-body-right",
             },
             {
                 data: 'newPercentage',
-                title: 'New %',
+                title: 'After/%',
+                render: renderPerNum,
+                className: "dt-body-right",
+            },
+            {
+                data: 'addValueNeeded',
+                title: 'Buy/$',
                 render: renderNum,
                 className: "dt-body-right",
             },
+            {
+                data: 'price',
+                title: 'Price/$',
+                render: renderNum,
+                className: "dt-body-right",
+            },
+            {
+                data: 'addShares',
+                title: 'Buy/Shares',
+                render: renderNum,
+                className: "dt-body-right",
+            },
+            // {
+            //     data: 'addValueActual',
+            //     title: 'Add $',
+            //     render: renderNum,
+            //     className: "dt-body-right",
+            // },
+            // {
+            //     data: 'newMarketValue',
+            //     title: 'New $',
+            //     render: renderNum,
+            //     className: "dt-body-right",
+            // },
+
         ]
     });
 
@@ -178,7 +180,7 @@ function handleClick() {
     for (let i = 0; i < plan.planList.length; i++) {
         const e = plan.planList[i];
         pieBefore.push({ name: e.symbol, value: e.oldMarketValue })
-        pieAfter.push({ name: e.symbol, value: e.newMarketValue })
+        pieAfter.push({ name: e.symbol, value: e.ableMarketValue })
         if (e.expectPercentage) {
             pieExpect.push({ name: e.symbol, value: e.expectPercentage / 100 })
         }
