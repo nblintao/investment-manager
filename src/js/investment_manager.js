@@ -181,6 +181,9 @@ function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, buff
     }
 
     let expectAddValue = cash - bufferCash;
+    if (expectAddValue < 0) {
+        expectAddValue = 0;
+    }
     let expectMarketValue = oldMarketValue + expectAddValue;
     let totalValue = oldMarketValue + cash
     let addValueActual = 0;
@@ -246,7 +249,7 @@ function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, buff
         // expectMarketValue: bufferCash,
         expectMarketValue: null,
         // ableMarketValue: null,
-        ableMarketValue: bufferCash,
+        ableMarketValue: cash - expectAddValue,
         // addValueNeeded: null,
         addValueNeeded: -expectAddValue,
         price: null,
@@ -254,7 +257,7 @@ function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, buff
         // addValueActual: -addValueActual,
         // newMarketValue: cash - addValueActual,
         // newPercentage: (cash - addValueActual) / totalValue * 100
-        newPercentage: bufferCash / totalValue * 100
+        newPercentage: (cash - expectAddValue) / totalValue * 100
     })
     const fullPlan = {
         planList: planList,

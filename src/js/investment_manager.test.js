@@ -636,6 +636,74 @@ test("test calculateBuyPlan insufficient 2 added", () => {
 
 
 
+test("test calculateBuyPlan buffer more than cash", () => {
+    expect(calculateBuyPlan(
+        SIMPLE_PRICE,
+        {},
+        TARGET_PERCENTAGE,
+        // cash
+        20,
+        // remain cash
+        100
+    )).toStrictEqual(
+        {
+            planList: [
+                {
+                    symbol: 'VTI',
+                    oldMarketValue: 0,
+                    oldPercentage: 0,
+                    expectPercentage: 54,
+                    expectMarketValue: 0,
+                    ableMarketValue: 0,
+                    addValueNeeded: 0,
+                    price: 1,
+                    addShares: 0,
+                    newPercentage: 0
+                },
+                {
+                    symbol: 'VXUS',
+                    oldMarketValue: 0,
+                    oldPercentage: 0,
+                    expectPercentage: 36,
+                    expectMarketValue: 0,
+                    ableMarketValue: 0,
+                    addValueNeeded: 0,
+                    price: 1,
+                    addShares: 0,
+                    newPercentage: 0
+                },
+                {
+                    symbol: 'VTEB',
+                    oldMarketValue: 0,
+                    oldPercentage: 0,
+                    expectPercentage: 10,
+                    expectMarketValue: 0,
+                    ableMarketValue: 0,
+                    addValueNeeded: 0,
+                    price: 1,
+                    addShares: 0,
+                    newPercentage: 0
+                },
+                {
+                    symbol: 'Cash',
+                    oldMarketValue: 20,
+                    oldPercentage: 100,
+                    expectPercentage: null,
+                    expectMarketValue: null,
+                    ableMarketValue: 20,
+                    addValueNeeded: -0,
+                    price: null,
+                    addShares: null,
+                    newPercentage: 100
+                }
+            ]
+        }
+    );
+});
+
+
+
+
 const PERSONAL_CONFIG = {
     hardcodePrice: {
         "VTI": 212.72,
