@@ -24,8 +24,6 @@ export const INIT_PERSONAL_CONFIG = {
         ],
         // Municipal bonds
         "VTEB": [
-            "TFI",
-            "MUB"
         ],
         "VTI": [
             // US stocks
@@ -243,6 +241,7 @@ export const INIT_PERSONAL_CONFIG = {
             "KEY",
             "KHC",
             "KLAC",
+            "KLG",
             "KMB",
             "KMI",
             "KMX",
