@@ -115,7 +115,7 @@ function inverseMapping(mapping) {
 }
 
 
-function mapSymbol(symbol, mapTo, defaultMapTo, targetPercentage) {
+function mapSymbol(symbol, mapTo, defaultMapTo, targetPercentage, unusedSymbolsInMapTo) {
     let mapped;
     if (symbol in mapTo) {
         mapped = mapTo[symbol];
@@ -129,14 +129,18 @@ function mapSymbol(symbol, mapTo, defaultMapTo, targetPercentage) {
     if (!(mapped in targetPercentage)) {
         alert(symbol + " is mapped to " + mapped + ", which is not in the target " + targetPercentage)
     }
+    if (unusedSymbolsInMapTo.has(symbol)) {
+        unusedSymbolsInMapTo.delete(symbol);
+    }
     return mapped;
 }
 function getAllEquityInfo(equities, mapTo, defaultMapTo, outsideHoldings, allPrices, targetPercentage) {
+    const unusedSymbolsInMapTo = new Set(Object.keys(mapTo));
     let allEquityInfo = [...equities];
     for (let i = 0; i < allEquityInfo.length; i++) {
         let e = allEquityInfo[i];
         e.source = "Schwab"
-        e.mapTo = mapSymbol(e.symbol, mapTo, defaultMapTo, targetPercentage);
+        e.mapTo = mapSymbol(e.symbol, mapTo, defaultMapTo, targetPercentage, unusedSymbolsInMapTo);
     }
     for (let i = 0; i < outsideHoldings.length; i++) {
         let e = {}
@@ -148,9 +152,11 @@ function getAllEquityInfo(equities, mapTo, defaultMapTo, outsideHoldings, allPri
         e.price = allPrices[e.symbol];
         e.marketValue = e.quantity * e.price;
         e.source = "Outside";
-        e.mapTo = mapSymbol(e.symbol, mapTo, defaultMapTo, targetPercentage);
+        e.mapTo = mapSymbol(e.symbol, mapTo, defaultMapTo, targetPercentage, unusedSymbolsInMapTo);
         allEquityInfo.push(e)
     }
+    console.log("Unused mappings: ")
+    console.log(unusedSymbolsInMapTo)
     // console.log(allEquityInfo)
     return allEquityInfo;
 }
