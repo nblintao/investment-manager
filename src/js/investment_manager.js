@@ -155,8 +155,7 @@ function getAllEquityInfo(equities, mapTo, defaultMapTo, outsideHoldings, allPri
         e.mapTo = mapSymbol(e.symbol, mapTo, defaultMapTo, targetPercentage, unusedSymbolsInMapTo);
         allEquityInfo.push(e)
     }
-    console.log("Unused mappings: ")
-    console.log(unusedSymbolsInMapTo)
+    console.log("Unused mappings: ", unusedSymbolsInMapTo)
     // console.log(allEquityInfo)
     return allEquityInfo;
 }
