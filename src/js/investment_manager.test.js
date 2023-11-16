@@ -403,6 +403,27 @@ test("test analyzeAllEquities", () => {
         TARGET_PERCENTAGE
     )).toStrictEqual(ALL_EQUITY_INFO);
 });
+
+test("test getAllEquityInfo cash as outsideHoldings", () => {
+    expect(getAllEquityInfo(
+        [], { Cash: "VTEB" }, null,
+        [
+            { symbol: 'Cash', quantity: 50000 },
+        ],
+        ALL_PRICES,
+        TARGET_PERCENTAGE
+    )).toStrictEqual([
+        {
+            symbol: 'Cash',
+            quantity: 50000,
+            price: 1,
+            marketValue: 50000,
+            source: 'Outside',
+            mapTo: 'VTEB'
+        }
+    ]);
+});
+
 const PLAN = {
     planList: [
         {
