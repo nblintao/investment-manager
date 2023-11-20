@@ -4,7 +4,6 @@ export const INIT_PERSONAL_CONFIG = {
     outsideHoldings: [
         { symbol: 'VTI', quantity: 152.69587 },
         { symbol: 'VXUS', quantity: 376.48986 },
-        { symbol: 'Cash', quantity: 50000 },
     ],
     targetPercentage: {
         "VTI": 54,
@@ -25,7 +24,6 @@ export const INIT_PERSONAL_CONFIG = {
         ],
         // Municipal bonds
         "VTEB": [
-            "Cash",
         ],
         "VTI": [
             // US stocks

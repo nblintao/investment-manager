@@ -146,14 +146,10 @@ function getAllEquityInfo(equities, mapTo, defaultMapTo, outsideHoldings, allPri
         let e = {}
         e.symbol = outsideHoldings[i].symbol
         e.quantity = outsideHoldings[i].quantity
-        if (e.symbol === "Cash") {
-            e.price = 1;
-        } else {
-            if (!(e.symbol in allPrices)) {
-                alert("price of " + e.symbol + "is unknown!");
-            }
-            e.price = allPrices[e.symbol];
+        if (!(e.symbol in allPrices)) {
+            alert("price of " + e.symbol + "is unknown!");
         }
+        e.price = allPrices[e.symbol];
         e.marketValue = e.quantity * e.price;
         e.source = "Outside";
         e.mapTo = mapSymbol(e.symbol, mapTo, defaultMapTo, targetPercentage, unusedSymbolsInMapTo);
