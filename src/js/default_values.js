@@ -2,8 +2,9 @@ export const INIT_PERSONAL_CONFIG = {
     additionalCash: 0,
     bufferCash: 1000,
     outsideHoldings: [
-        { symbol: 'VTI', quantity: 152.69587 },
-        { symbol: 'VXUS', quantity: 376.48986 },
+        { symbol: "VTI", quantity: 152.69587 },
+        { symbol: "VXUS", quantity: 376.48986 },
+        { symbol: "Fixed Income", quantity: 50000 }
     ],
     targetPercentage: {
         "VTI": 54,
@@ -11,6 +12,7 @@ export const INIT_PERSONAL_CONFIG = {
         "VTEB": 10
     },
     hardcodePrice: {
+        "Fixed Income": 1
     },
     defaultMapTo: null,
     mapping: {
@@ -24,6 +26,7 @@ export const INIT_PERSONAL_CONFIG = {
         ],
         // Municipal bonds
         "VTEB": [
+            "Fixed Income"
         ],
         "VTI": [
             // US stocks
