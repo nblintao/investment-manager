@@ -364,7 +364,6 @@ export const INIT_PERSONAL_CONFIG = {
             "RTX",
             "RVTY",
             "SBUX",
-            "SGEN",
             "SHW",
             "SJM",
             "SLB",
