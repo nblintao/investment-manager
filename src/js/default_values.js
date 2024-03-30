@@ -14,7 +14,7 @@ export const INIT_PERSONAL_CONFIG = {
     hardcodePrice: {
         "Fixed Income": 1
     },
-    defaultMapTo: null,
+    defaultMapTo: "VTI",
     mapping: {
         "VXUS": [
             // Foreign developed stocks
