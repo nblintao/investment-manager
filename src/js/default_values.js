@@ -371,6 +371,7 @@ export const INIT_PERSONAL_CONFIG = {
             "SNAP",
             "SNOW",
             "SNPS",
+            "SOLV",
             "SPG",
             "SPGI",
             "SQ",
