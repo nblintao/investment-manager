@@ -124,6 +124,7 @@ function mapSymbol(symbol, mapTo, defaultMapTo, targetPercentage, unusedSymbolsI
             alert("equity " + symbol + " cannot be mapped");
         } else {
             mapped = defaultMapTo;
+            console.log("equity " + symbol + " uses default " + defaultMapTo)
         }
     }
     if (!(mapped in targetPercentage)) {
