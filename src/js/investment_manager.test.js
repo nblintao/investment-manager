@@ -15,7 +15,7 @@ test('test parseSchwabCSV simple', () => {
     const SCHWAB_CSV_1 = `
 "Positions for account Personal ...977 as of 07:28 PM ET, 2023/06/04","","","","","","","","","","","","","","","",""
 "","","","","","","","","","","","","","","","",""
-"Symbol","Description","Quantity","Price","Price Change %","Price Change $","Market Value","Day Change %","Day Change $","Cost Basis","Gain/Loss %","Gain/Loss $","Ratings","Reinvest Dividends?","Capital Gains?","% Of Account","Security Type"
+"Symbol","Description","Qty (Quantity)","Price","Price Chng % (Price Change %)","Price Chng $ (Price Change $)","Mkt Val (Market Value)","Day Chng % (Day Change %)","Day Chng $ (Day Change $)","Cost Basis","Gain % (Gain/Loss %)","Gain $ (Gain/Loss $)","Ratings","Reinvest?","Reinvest Capital Gains?","% of Acct (% of Account)","Security Type"
 "Cash & Cash Investments","--","--","--","--","--","$0.00","0%","$0.00","--","--","--","--","--","--","N/A","Cash and Money Market"
 "Account Total","--","--","--","--","--","$0.00","0%","$0.00","N/A","N/A","N/A","--","--","--","--","--"
 `
@@ -29,7 +29,7 @@ test('test parseSchwabCSV simple', () => {
     const SCHWAB_CSV_2 = `
 "Positions for account Personal ...977 as of 07:28 PM ET, 2023/06/04",,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,
-Symbol,Description,Quantity,Price,Price Change %,Price Change $,Market Value,Day Change %,Day Change $,Cost Basis,Gain/Loss %,Gain/Loss $,Ratings,Reinvest Dividends?,Capital Gains?,% Of Account,Security Type
+"Symbol","Description","Qty (Quantity)","Price","Price Chng % (Price Change %)","Price Chng $ (Price Change $)","Mkt Val (Market Value)","Day Chng % (Day Change %)","Day Chng $ (Day Change $)","Cost Basis","Gain % (Gain/Loss %)","Gain $ (Gain/Loss $)","Ratings","Reinvest?","Reinvest Capital Gains?","% of Acct (% of Account)","Security Type"
 Cash & Cash Investments,--,--,--,--,--,$0.00,0%,$0.00,--,--,--,--,--,--,N/A,Cash and Money Market
 Account Total,--,--,--,--,--,$0.00,0%,$0.00,N/A,N/A,N/A,--,--,--,--,--
 `
@@ -44,7 +44,7 @@ Account Total,--,--,--,--,--,$0.00,0%,$0.00,N/A,N/A,N/A,--,--,--,--,--
 const SCHWAB_CSV_3 = `
 "Positions for account Personal ...977 as of 07:28 PM ET, 2023/06/04",,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,
-Symbol,Description,Quantity,Price,Price Change %,Price Change $,Market Value,Day Change %,Day Change $,Cost Basis,Gain/Loss %,Gain/Loss $,Ratings,Reinvest Dividends?,Capital Gains?,% Of Account,Security Type
+"Symbol","Description","Qty (Quantity)","Price","Price Chng % (Price Change %)","Price Chng $ (Price Change $)","Mkt Val (Market Value)","Day Chng % (Day Change %)","Day Chng $ (Day Change $)","Cost Basis","Gain % (Gain/Loss %)","Gain $ (Gain/Loss $)","Ratings","Reinvest?","Reinvest Capital Gains?","% of Acct (% of Account)","Security Type"
 VXF,,35,143.41,,,5019.35,,,,,,,,,,
 VB,,69,191.21,,,13193.49,,,,,,,,,,
 MSFT,,51,335.4,,,17105.4,,,,,,,,,,

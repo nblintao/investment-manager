@@ -19,9 +19,9 @@ function runInvestmentManager(schwabCSV, personalConfig) {
 // Log in schwab.com > Select account > "Export"
 function parseSchwabCSV(content) {
     const SYMBOL = 'Symbol';
-    const QUANTITY = 'Quantity';
+    const QUANTITY = "Qty (Quantity)";
     const PRICE = 'Price';
-    const MARKET_VALUE = 'Market Value';
+    const MARKET_VALUE = "Mkt Val (Market Value)";
     const ACCOUNT_TOTAL = 'Account Total';
     const CASH = 'Cash & Cash Investments'
 
@@ -35,7 +35,7 @@ function parseSchwabCSV(content) {
         }
     }
     if (headRowIndex === -1) {
-        return [];
+        alert("cannot find head row in CSV")
     }
 
     // Find the indices of the columns that contain QUANTITY, PRICE, and MARKET_VALUE
@@ -52,8 +52,17 @@ function parseSchwabCSV(content) {
         }
 
     }
-    if (quantityIndex === -1 || priceIndex === -1 || marketValueIndex === -1) {
-        return [];
+
+    if (quantityIndex === -1) {
+        alert("cannot find quantity column in CSV")
+    }
+
+    if (priceIndex === -1) {
+        alert("cannot find price column in CSV")
+    }
+
+    if (marketValueIndex === -1) {
+        alert("cannot find market value column in CSV")
     }
 
     let result = {};

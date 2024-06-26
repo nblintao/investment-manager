@@ -452,7 +452,7 @@ export const INIT_PERSONAL_CONFIG = {
 export const INIT_SCHWAB_CSV = `
 "Positions for account Personal ...977 as of 07:28 PM ET, 2023/06/04",,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,
-Symbol,Description,Quantity,Price,Price Change %,Price Change $,Market Value,Day Change %,Day Change $,Cost Basis,Gain/Loss %,Gain/Loss $,Ratings,Reinvest Dividends?,Capital Gains?,% Of Account,Security Type
+"Symbol","Description","Qty (Quantity)","Price","Price Chng % (Price Change %)","Price Chng $ (Price Change $)","Mkt Val (Market Value)","Day Chng % (Day Change %)","Day Chng $ (Day Change $)","Cost Basis","Gain % (Gain/Loss %)","Gain $ (Gain/Loss $)","Ratings","Reinvest?","Reinvest Capital Gains?","% of Acct (% of Account)","Security Type"
 VXF,,35,143.41,,,5019.35,,,,,,,,,,
 VB,,69,191.21,,,13193.49,,,,,,,,,,
 MSFT,,51,335.4,,,17105.4,,,,,,,,,,
