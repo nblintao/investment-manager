@@ -288,7 +288,6 @@ export const INIT_PERSONAL_CONFIG = {
             "MPC",
             "MRK",
             "MRNA",
-            "MRO",
             "MS",
             "MSCI",
             "MSFT",
