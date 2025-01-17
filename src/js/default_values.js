@@ -1,10 +1,7 @@
 export const INIT_PERSONAL_CONFIG = {
     additionalCash: 0,
     bufferCash: 1000,
-    outsideHoldings: [
-        { symbol: "VTI", quantity: 152.69587 },
-        { symbol: "VXUS", quantity: 376.48986 }
-    ],
+    outsideHoldings: [],
     targetPercentage: {
         "VTI": 54,
         "VXUS": 36,
