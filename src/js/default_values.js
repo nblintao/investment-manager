@@ -46,7 +46,6 @@ export const INIT_PERSONAL_CONFIG = {
             "ADSK",
             "AEE",
             "AFL",
-            "AGR",
             "AIG",
             "AJG",
             "ALL",
