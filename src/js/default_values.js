@@ -17,7 +17,6 @@ export const INIT_PERSONAL_CONFIG = {
             "VEA",
             "SCHF",
             // Emerging market stocks
-            "VWO",
             "IEMG"
         ],
         // Municipal bonds
@@ -423,7 +422,6 @@ export const INIT_PERSONAL_CONFIG = {
             "WAB",
             "WBA",
             "WBD",
-            "WCN",
             "WELL",
             "WM",
             "WMB",
