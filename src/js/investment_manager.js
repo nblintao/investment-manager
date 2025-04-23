@@ -175,8 +175,10 @@ function checkTargetPercentage(targetPercentage) {
     for (let key in targetPercentage) {
         sum += targetPercentage[key];
     }
-    if (sum != 100) {
-        alert("targetPercentage should add up to 100!")
+    // Use a small tolerance (epsilon) for comparing floating-point numbers
+    const epsilon = 1e-9;
+    if (Math.abs(sum - 100) > epsilon) {
+        alert(`targetPercentage should add up to 100! Current sum: ${sum}`)
     }
 }
 function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, bufferCash) {
