@@ -197,6 +197,7 @@ export const INIT_PERSONAL_CONFIG = {
             "GPC",
             "GRMN",
             "GS",
+            "GTM",
             "GWW",
             "HAL",
             "HAS",
@@ -434,8 +435,7 @@ export const INIT_PERSONAL_CONFIG = {
             "XYZ",
             "YUM",
             "Z",
-            "ZBH",
-            "ZI",
+            "ZBH"
             "ZTS"
         ]
     },
