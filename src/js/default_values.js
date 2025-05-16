@@ -435,7 +435,7 @@ export const INIT_PERSONAL_CONFIG = {
             "XYZ",
             "YUM",
             "Z",
-            "ZBH"
+            "ZBH",
             "ZTS"
         ]
     },
