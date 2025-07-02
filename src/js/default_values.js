@@ -340,6 +340,7 @@ export const INIT_PERSONAL_CONFIG = {
             "PSX",
             "PWR",
             "PYPL",
+            "RAL",
             "RBLX",
             "REG",
             "REGN",
