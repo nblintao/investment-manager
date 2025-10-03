@@ -81,10 +81,29 @@ function parseSchwabCSV(content) {
 
         let equity = {};
         equity.symbol = symbol;
-        equity.quantity = parseDollars(row[quantityIndex]);
-        equity.price = parseDollars(row[priceIndex]);
-        equity.marketValue = parseDollars(row[marketValueIndex]);
-        equities.push(equity);
+        const rawQty = row[quantityIndex];
+        const rawPrice = row[priceIndex];
+        const rawMV = row[marketValueIndex];
+        equity.quantity = parseDollars(rawQty);
+        equity.price = parseDollars(rawPrice);
+        equity.marketValue = parseDollars(rawMV);
+        // Some rows (e.g., placeholders, corporate actions) may have N/A values.
+        // Skip rows that don't have valid numeric fields to avoid NaN propagation,
+        // and log the specific reasons for being ignored.
+        if (
+            Number.isFinite(equity.quantity) &&
+            Number.isFinite(equity.price) &&
+            Number.isFinite(equity.marketValue)
+        ) {
+            equities.push(equity);
+        } else {
+            const issues = [];
+            if (!Number.isFinite(equity.quantity)) issues.push(`quantity invalid: "${rawQty}"`);
+            if (!Number.isFinite(equity.price)) issues.push(`price invalid: "${rawPrice}"`);
+            if (!Number.isFinite(equity.marketValue)) issues.push(`marketValue invalid: "${rawMV}"`);
+            // Use console.warn so browser devtools highlight it as a warning.
+            console.warn(`[parseSchwabCSV] Skip ${symbol} — ${issues.join('; ')}`);
+        }
     }
     result.equities = equities
     return result;
@@ -133,7 +152,7 @@ function mapSymbol(symbol, mapTo, defaultMapTo, targetPercentage, unusedSymbolsI
             alert("equity " + symbol + " cannot be mapped");
         } else {
             mapped = defaultMapTo;
-            console.log("equity " + symbol + " uses default " + defaultMapTo)
+            console.warn("[mapSymbol] equity " + symbol + " uses default " + defaultMapTo)
         }
     }
     if (!(mapped in targetPercentage)) {
@@ -165,7 +184,13 @@ function getAllEquityInfo(equities, mapTo, defaultMapTo, outsideHoldings, allPri
         e.mapTo = mapSymbol(e.symbol, mapTo, defaultMapTo, targetPercentage, unusedSymbolsInMapTo);
         allEquityInfo.push(e)
     }
-    console.log("Unused mappings: ", unusedSymbolsInMapTo)
+    // Warn if there are unused mappings excluding known placeholders like "Fixed Income".
+    const placeholders = new Set(["Fixed Income"]);
+    const unusedExcludingPlaceholders = Array.from(unusedSymbolsInMapTo).filter(s => !placeholders.has(s));
+    if (unusedExcludingPlaceholders.length > 0) {
+        console.warn(`[getAllEquityInfo] Unused mappings (excluding placeholders): ${unusedExcludingPlaceholders.join(', ')}`);
+    }
+    console.log("Unused mappings: ", unusedSymbolsInMapTo);
     // console.log(allEquityInfo)
     return allEquityInfo;
 }
@@ -290,9 +315,14 @@ function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, buff
 
 // Can also parse if it does not have dollars.
 function parseDollars(str) {
-    // Remove "," and "$", then parse as a float.
-    return parseFloat(str.replace(/[$,]/g, ""));
+    if (str == null) return NaN;
+    // Normalize and handle common non-numeric placeholders.
+    const s = String(str).trim();
+    if (s === '' || s.toUpperCase() === 'N/A' || s === '--') return NaN;
+    // Remove "$" and "," and optional trailing "%", then parse as float.
+    const cleaned = s.replace(/[$,]/g, "").replace(/%$/g, "");
+    const n = parseFloat(cleaned);
+    return Number.isNaN(n) ? NaN : n;
 }
 
 export { parseDollars, parseSchwabCSV, getAllPrices, inverseMapping, getAllEquityInfo, calculateBuyPlan, runInvestmentManager };
-
