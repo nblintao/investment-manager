@@ -1,7 +1,9 @@
 export const INIT_PERSONAL_CONFIG = {
     additionalCash: 0,
     bufferCash: 1000,
-    outsideHoldings: [],
+    outsideHoldings: [
+        { symbol: "Fixed Income", quantity: 49260.05 }
+    ],
     targetPercentage: {
         "VTI": 54,
         "VXUS": 36,
@@ -270,7 +272,6 @@ export const INIT_PERSONAL_CONFIG = {
             "MKC",
             "MKL",
             "MKTX",
-            "MMC",
             "MMM",
             "MNST",
             "MO",
@@ -279,6 +280,7 @@ export const INIT_PERSONAL_CONFIG = {
             "MRK",
             "MRNA",
             "MRP",
+            "MRSH",
             "MS",
             "MSCI",
             "MSFT",
@@ -414,6 +416,7 @@ export const INIT_PERSONAL_CONFIG = {
             "VRSN",
             "VRTX",
             "VST",
+            "VSNT",
             "VTRS",
             "VZ",
             "WAB",
