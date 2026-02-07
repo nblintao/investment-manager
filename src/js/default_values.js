@@ -2,7 +2,7 @@ export const INIT_PERSONAL_CONFIG = {
     additionalCash: 0,
     bufferCash: 1000,
     outsideHoldings: [
-        { symbol: "Fixed Income", quantity: 49260.05 }
+        { symbol: "Fixed Income", quantity: 0 }
     ],
     targetPercentage: {
         "VTI": 54,
