@@ -22,7 +22,7 @@ function parseSchwabCSV(content) {
     const QUANTITY = "Qty (Quantity)";
     const PRICE = 'Price';
     const MARKET_VALUE = "Mkt Val (Market Value)";
-    const ACCOUNT_TOTAL = 'Account Total';
+    const TOTAL_ROW_LABELS = new Set(['Account Total', 'Positions Total']);
     const CASH = 'Cash & Cash Investments'
 
     let table = CSVToArray(content);
@@ -71,11 +71,14 @@ function parseSchwabCSV(content) {
     for (let i = headRowIndex + 1; i < table.length; i++) {
         let row = table[i];
         let symbol = row[0];
-        if (symbol == ACCOUNT_TOTAL) {
+        if (TOTAL_ROW_LABELS.has(symbol)) {
             result.totalMarketValue = parseDollars(row[marketValueIndex]);
             break;
         } else if (symbol == CASH) {
             result.cash = parseDollars(row[marketValueIndex]);
+            continue;
+        } else if (!symbol) {
+            // Trailing empty row from a final newline — skip silently.
             continue;
         }
 
