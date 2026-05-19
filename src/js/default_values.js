@@ -441,7 +441,7 @@ export const INIT_PERSONAL_CONFIG = {
 export const INIT_SCHWAB_CSV = `
 "Positions for account Personal ...999 as of 10:00 AM ET, 2023/01/01",,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,
-"Symbol","Description","Qty (Quantity)","Price","Price Chng % (Price Change %)","Price Chng $ (Price Change $)","Mkt Val (Market Value)","Day Chng % (Day Change %)","Day Chng $ (Day Change $)","Cost Basis","Gain % (Gain/Loss %)","Gain $ (Gain/Loss $)","Ratings","Reinvest?","Reinvest Capital Gains?","% of Acct (% of Account)","Security Type"
+"Symbol","Description","Qty (Quantity)","Price","Price Chng % (Price Change %)","Price Chng $ (Price Change $)","Mkt Val (Market Value)","Day Chng $ (Day Change $)","Day Chng % (Day Change %)","Cost Basis","Gain % (Gain/Loss %)","Gain $ (Gain/Loss $)","Ratings","Reinvest?","Reinvest Capital Gains?","% of Acct (% of Account)","Asset Type"
 VXF,,30,140,,,4200,,,,,,,,,,
 VB,,70,190,,,13300,,,,,,,,,,
 MSFT,,50,340,,,17000,,,,,,,,,,
@@ -459,5 +459,5 @@ VTEB,,50,50,,,2500,,,,,,,,,,
 VTI,,1,210,,,210,,,,,,,,,,
 VXUS,,1,55,,,55,,,,,,,,,,
 Cash & Cash Investments,--,--,--,--,--,"$30,000.00",0%,$0.00,--,--,--,--,--,--,N/A,Cash and Money Market
-Account Total,--,--,--,--,--,"$164,765.00",0%,$0.00,N/A,N/A,N/A,--,--,--,--,--
+Positions Total,--,--,--,--,--,"$164,765.00",0%,$0.00,N/A,N/A,N/A,--,--,--,--,--
 `
