@@ -215,17 +215,21 @@ function inputChanged() {
     document.getElementById("pigBtn").disabled = false;
 }
 
-function dropFile(dropEvent, element) {
-    dropEvent.preventDefault();
-
-    var file = dropEvent.dataTransfer.files[0];
+function readFileInto(file, element) {
+    if (!file) {
+        return;
+    }
     var reader = new FileReader();
     reader.onload = function (readEvent) {
         element.value = readEvent.target.result;
         inputChanged();
     };
     reader.readAsText(file);
+}
 
+function dropFile(dropEvent, element) {
+    dropEvent.preventDefault();
+    readFileInto(dropEvent.dataTransfer.files[0], element);
     return false;
 }
 
@@ -236,6 +240,15 @@ window.addEventListener("DOMContentLoaded", function () {
     inputCSV.ondrop = function (dropEvent) {
         return dropFile(dropEvent, inputCSV);
     };
+
+    const inputCSVFile = document.getElementById("inputCSVFile");
+    inputCSVFile.addEventListener("change", function (changeEvent) {
+        readFileInto(changeEvent.target.files[0], inputCSV);
+        changeEvent.target.value = "";
+    });
+    document.getElementById("inputCSVLabel").addEventListener("click", function () {
+        inputCSVFile.click();
+    });
 
     const inputConfig = document.getElementById("inputConfig");
     inputConfig.addEventListener("keyup", inputChanged);

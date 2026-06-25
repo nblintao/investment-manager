@@ -62,8 +62,13 @@
             <div class="col-lg-6 mt-2">
                 <div class="form-floating">
                     <textarea class="form-control" id="inputCSV" style="height: 400px"></textarea>
-                    <label for="floatingInputGrid">Schwab CSV</label>
+                    <label>
+                        <span id="inputCSVLabel" style="cursor: pointer; pointer-events: auto;" title="点击上传 CSV 文件">Schwab CSV
+                            <span style="opacity: 0.5; font-size: 0.85em;">⬆</span>
+                        </span>
+                    </label>
                 </div>
+                <input type="file" id="inputCSVFile" accept=".csv,text/csv" style="display: none;" />
             </div>
             <div class="col-lg-6 mt-2">
                 <div class="form-floating">
