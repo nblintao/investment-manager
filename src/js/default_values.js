@@ -208,6 +208,7 @@ export const INIT_PERSONAL_CONFIG = {
             "HD",
             "HIG",
             "HON",
+            "HONA",
             "HPE",
             "HPQ",
             "HRL",
