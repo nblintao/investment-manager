@@ -448,26 +448,36 @@ export const INIT_PERSONAL_CONFIG = {
     },
 }
 
+// Default CSV demo data contract — keep this in sync with INIT_PERSONAL_CONFIG:
+// - It must look clearly fictional: use a Demo account header and round integer
+//   quantities, prices, market values, and cash instead of realistic-looking data.
+// - Positions Total must equal the sum of all security market values plus cash.
+// - In the default buy-only mode, every target bucket should be underweight and
+//   receive a positive trade so the example demonstrates a normal rebalance.
+// - Before percentages should differ visibly from target; After should land close
+//   to targetPercentage while preserving bufferCash.
+// - Recalculate this CSV whenever outsideHoldings, mapping, targetPercentage, or
+//   bufferCash changes. See default_values.test.js for the enforced invariants.
 export const INIT_SCHWAB_CSV = `
-"Positions for account Personal ...999 as of 10:00 AM ET, 2023/01/01",,,,,,,,,,,,,,,,
+"Positions for account Demo ...000 as of 10:00 AM ET, 2000/01/01",,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,
 "Symbol","Description","Qty (Quantity)","Price","Price Chng % (Price Change %)","Price Chng $ (Price Change $)","Mkt Val (Market Value)","Day Chng $ (Day Change $)","Day Chng % (Day Change %)","Cost Basis","Gain % (Gain/Loss %)","Gain $ (Gain/Loss $)","Ratings","Reinvest?","Reinvest Capital Gains?","% of Acct (% of Account)","Asset Type"
-VXF,,30,140,,,4200,,,,,,,,,,
-VB,,70,190,,,13300,,,,,,,,,,
-MSFT,,50,340,,,17000,,,,,,,,,,
-AAPL,,100,170,,,17000,,,,,,,,,,
-NVDA,,70,390,,,27300,,,,,,,,,,
-GOOGL,,80,125,,,10000,,,,,,,,,,
-GOOG,,40,130,,,5200,,,,,,,,,,
-META,,50,270,,,13500,,,,,,,,,,
-VEA,,40,45,,,1800,,,,,,,,,,
-SCHF,,40,35,,,1400,,,,,,,,,,
-IEMG,,90,50,,,4500,,,,,,,,,,
-VIG,,80,150,,,12000,,,,,,,,,,
-SCHD,,60,70,,,4200,,,,,,,,,,
-VTEB,,50,50,,,2500,,,,,,,,,,
-VTI,,1,210,,,210,,,,,,,,,,
-VXUS,,1,55,,,55,,,,,,,,,,
-Cash & Cash Investments,--,--,--,--,--,"$30,000.00",0%,$0.00,--,--,--,--,--,--,N/A,Cash and Money Market
-Positions Total,--,--,--,--,--,"$164,765.00",0%,$0.00,N/A,N/A,N/A,--,--,--,--,--
+VXF,,2000,100,,,200000,,,,,,,,,,
+VB,,2000,100,,,200000,,,,,,,,,,
+MSFT,,2000,100,,,200000,,,,,,,,,,
+AAPL,,2000,100,,,200000,,,,,,,,,,
+NVDA,,1000,100,,,100000,,,,,,,,,,
+GOOGL,,1000,100,,,100000,,,,,,,,,,
+GOOG,,1000,100,,,100000,,,,,,,,,,
+META,,1000,100,,,100000,,,,,,,,,,
+VEA,,2500,100,,,250000,,,,,,,,,,
+SCHF,,2500,100,,,250000,,,,,,,,,,
+IEMG,,2500,100,,,250000,,,,,,,,,,
+VIG,,1000,100,,,100000,,,,,,,,,,
+SCHD,,1000,100,,,100000,,,,,,,,,,
+VTEB,,500,100,,,50000,,,,,,,,,,
+VTI,,1000,100,,,100000,,,,,,,,,,
+VXUS,,2500,100,,,250000,,,,,,,,,,
+Cash & Cash Investments,--,--,--,--,--,"$1,700,000.00",0%,$0.00,--,--,--,--,--,--,N/A,Cash and Money Market
+Positions Total,--,--,--,--,--,"$4,250,000.00",0%,$0.00,N/A,N/A,N/A,--,--,--,--,--
 `
