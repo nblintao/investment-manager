@@ -1,111 +1,160 @@
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Tao's Investment Manager</title>
+
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
     <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#469eda">
     <meta name="msapplication-TileColor" content="#469eda">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#f4f7fb">
 
-
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
 
-    <script src="main.js"></script>
-    <style>
-        /* Use CSS filter generator to convert from black to target hex color: https://codepen.io/sosuke/pen/Pjoqqp */
-        :root {
-            /* Schwab color: #469EDA */
-            --balck-to-schwab-blue: invert(60%) sepia(48%) saturate(1010%) hue-rotate(177deg) brightness(90%) contrast(90%);
-            /* --bs-btn-color #0d6efd */
-            --balck-to-blue: invert(37%) sepia(98%) saturate(4632%) hue-rotate(209deg) brightness(101%) contrast(98%);
-            /* --bs-btn-hover-color #fff */
-            --balck-to-white: invert(99%) sepia(92%) saturate(2%) hue-rotate(150deg) brightness(116%) contrast(100%);
-        }
-
-        #pigBtnImg {
-            filter: var(--balck-to-blue);
-        }
-
-        #pigBtn:hover>#pigBtnImg {
-            filter: var(--balck-to-white);
-        }
-
-        #pigBtn:disabled>#pigBtnImg {
-            filter: var(--balck-to-blue);
-        }
-    </style>
+    <script src="main.js" defer></script>
 </head>
 
 <body>
-    <div class="container">
-        <!-- Adapt from https://getbootstrap.com/docs/5.3/examples/headers/ -->
-        <header class="d-flex py-3 mb-3 border-bottom">
-            <a href="/"
-                class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
-                <span class="display-4 mt-auto">Tao's Investment Manager</h1>
+    <main class="app-shell">
+        <header class="app-header">
+            <a href="/" class="brand-link">
+                <h1>Tao's Investment Manager</h1>
             </a>
-            <div class="mt-auto">
-                <button type="button" id="pigBtn" class="btn btn-outline-primary btn-lg">
-                    <span class="runIcon">⏵</span>
-                    <img id="pigBtnImg" src="safari-pinned-tab.svg" height="100" />
-                </button>
-            </div>
+            <button type="button" id="pigBtn" class="run-button">
+                <span>Run rebalance</span>
+                <img id="pigBtnImg" src="safari-pinned-tab.svg" alt="" aria-hidden="true">
+            </button>
         </header>
 
+        <section class="workspace-section" aria-labelledby="inputsHeading">
+            <h2 class="visually-hidden" id="inputsHeading">Portfolio data</h2>
 
-        <div class="row mb-3">
-            <div class="col-lg-6 mt-2">
-                <div class="form-floating">
-                    <textarea class="form-control" id="inputCSV" style="height: 400px"></textarea>
-                    <label>
-                        <span id="inputCSVLabel" style="cursor: pointer; pointer-events: auto;" title="点击上传 CSV 文件">Schwab CSV
-                            <span style="opacity: 0.5; font-size: 0.85em;">⬆</span>
-                        </span>
-                    </label>
+            <div class="row g-3">
+                <div class="col-12 col-xl-6">
+                    <article class="panel editor-panel">
+                        <div class="panel-heading">
+                            <div class="panel-title">
+                                <h3>Schwab positions</h3>
+                                <span class="info-tip" role="img" tabindex="0"
+                                    aria-label="The default portfolio is illustrative only and does not reflect actual investments or financial advice."
+                                    data-tooltip="The default portfolio is illustrative only and does not reflect actual investments or financial advice.">i</span>
+                            </div>
+                            <button type="button" id="inputCSVLabel" class="upload-button"
+                                title="Upload a Schwab CSV file">
+                                Upload CSV <span aria-hidden="true">↑</span>
+                            </button>
+                        </div>
+                        <label class="visually-hidden" for="inputCSV">Schwab CSV data</label>
+                        <textarea class="form-control code-editor" id="inputCSV" spellcheck="false"
+                            aria-label="Schwab CSV data"></textarea>
+                        <input type="file" id="inputCSVFile" accept=".csv,text/csv" hidden>
+                    </article>
                 </div>
-                <input type="file" id="inputCSVFile" accept=".csv,text/csv" style="display: none;" />
-            </div>
-            <div class="col-lg-6 mt-2">
-                <div class="form-floating">
-                    <textarea class="form-control" id="inputConfig" style="height: 400px"></textarea>
-                    <label for="floatingInputGrid">Personal Config</label>
+
+                <div class="col-12 col-xl-6">
+                    <article class="panel editor-panel">
+                        <div class="panel-heading">
+                            <h3>Personal config</h3>
+                        </div>
+                        <label class="visually-hidden" for="inputConfig">Personal configuration JSON</label>
+                        <textarea class="form-control code-editor" id="inputConfig" spellcheck="false"
+                            aria-label="Personal configuration JSON"></textarea>
+                        <div class="editor-footer">
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" role="switch" id="allowVtebSell">
+                                <label class="form-check-label" for="allowVtebSell">Allow selling actual VTEB</label>
+                                <span class="info-tip" role="img" tabindex="0"
+                                    aria-label="Off means buy only. Outside and mapped bond holdings are never sold."
+                                    data-tooltip="Off means buy only. Outside and mapped bond holdings are never sold.">i</span>
+                            </div>
+                        </div>
+                    </article>
                 </div>
             </div>
-            <p class="mb-0"><small>The data shown in this portfolio is for illustrative purposes only and does not
-                    reflect my actual
-                    investments. Please do not consider this as financial advice or guidance.</small></p>
-        </div>
 
+        </section>
 
-        <div class="row mb-3">
-            <table id="plan" class="table table-striped w-auto mb-1"></table>
-
-        </div>
-
-        <div class="row justify-content-around mb-3">
-            <div class="col-lg-4 px-4">
-                <div id="pieBefore" style="text-align: center;"></div>
-                <span class="fs-5">Before</span>
+        <section class="panel data-panel" aria-labelledby="planHeading">
+            <div class="section-heading compact">
+                <h2 id="planHeading">Rebalance plan</h2>
+                <details id="reviewNotes" class="review-notes" hidden>
+                    <summary>
+                        <span>Review notes</span>
+                    </summary>
+                    <div class="review-notes-popover">
+                        <section id="skippedRowsGroup" class="review-notes-group" hidden>
+                            <h3>Skipped CSV rows</h3>
+                            <p>These positions had invalid numeric values and were excluded.</p>
+                            <ul id="skippedRowsList" class="skipped-rows-list"></ul>
+                        </section>
+                        <section id="defaultMappingGroup" class="review-notes-group" hidden>
+                            <h3>Using default mapping</h3>
+                            <p>These positions were not explicitly configured.</p>
+                            <ul id="defaultMappingList" class="default-mapping-list"></ul>
+                        </section>
+                        <section id="unusedMappingGroup" class="review-notes-group" hidden>
+                            <h3>Unused mappings</h3>
+                            <p>These configured symbols are not in the current holdings.</p>
+                            <ul id="unusedMappingList" class="unused-mapping-list"></ul>
+                        </section>
+                    </div>
+                </details>
             </div>
-            <div class="col-lg-4 px-4">
-                <div id="pieExpect" style="text-align: center;"></div>
-                <span class="fs-5">Expect</span>
+            <div class="table-scroll plan-table-scroll">
+                <table id="plan" class="table align-middle mb-0"></table>
             </div>
-            <div class="col-lg-4 px-4">
-                <div id="pieAfter" style="text-align: center;"></div>
-                <span class="fs-5">After</span>
-            </div>
-        </div>
+        </section>
 
-        <div class="row mb-4">
-            <table id="allEquityInfo" class="table table-striped w-auto table-sm mb-1"></table>
-        </div>
-    </div>
+        <section class="workspace-section" aria-labelledby="allocationHeading">
+            <div class="section-heading">
+                <h2 id="allocationHeading">Portfolio mix</h2>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-12 col-md-6 col-xl-4">
+                    <article class="panel chart-card">
+                        <div class="chart-heading">
+                            <h3>Before</h3>
+                        </div>
+                        <div id="pieBefore" class="chart-visual"></div>
+                    </article>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                    <article class="panel chart-card">
+                        <div class="chart-heading">
+                            <h3>Target</h3>
+                        </div>
+                        <div id="pieExpect" class="chart-visual"></div>
+                    </article>
+                </div>
+                <div class="col-12 col-md-6 col-xl-4">
+                    <article class="panel chart-card">
+                        <div class="chart-heading">
+                            <h3>After</h3>
+                        </div>
+                        <div id="pieAfter" class="chart-visual"></div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel data-panel" aria-labelledby="holdingsHeading">
+            <div class="section-heading compact">
+                <h2 id="holdingsHeading">Mapped holdings</h2>
+            </div>
+            <div class="table-scroll holdings-table-scroll">
+                <table id="allEquityInfo" class="table align-middle mb-0"></table>
+            </div>
+        </section>
+    </main>
 </body>
 
 </html>
