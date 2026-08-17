@@ -158,7 +158,7 @@ function handleClick() {
             },
             {
                 data: 'addValueNeeded',
-                title: 'Trade/$',
+                title: 'Buy/$',
                 render: renderNum,
                 className: "dt-body-right",
             },
@@ -170,7 +170,7 @@ function handleClick() {
             },
             {
                 data: 'addShares',
-                title: 'Trade/Shares',
+                title: 'Buy/Shares',
                 render: renderNum,
                 className: "dt-body-right",
             },
