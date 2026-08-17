@@ -80,13 +80,18 @@ export default function PieChart(data, {
         .selectAll("tspan")
         .data(d => {
             const lines = `${title(d.data)}`.split(/\n/);
-            return (d.endAngle - d.startAngle) > 0 ? lines : lines.slice(0, 1);
-            // return (d.endAngle - d.startAngle) > 0.25 ? lines : lines.slice(0, 1);
+            const angle = d.endAngle - d.startAngle;
+            if (angle < 0.08) return [];
+            if (angle < 0.3) return lines.slice(0, 1);
+            return lines;
         })
         .join("tspan")
         .attr("x", 0)
-        .attr("y", (_, i) => `${i * 1.1}em`)
+        .attr("y", (_, i, nodes) => `${(i - (nodes.length - 1) / 2) * 1.15}em`)
         .attr("font-weight", (_, i) => i ? null : "bold")
+        .attr("paint-order", "stroke")
+        .attr("stroke", "rgba(255, 255, 255, 0.72)")
+        .attr("stroke-width", 2.5)
         .text(d => d);
 
     return Object.assign(svg.node(), { scales: { color } });

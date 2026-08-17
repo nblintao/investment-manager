@@ -1,12 +1,24 @@
 import { runInvestmentManager } from "./investment_manager.js"
 import { INIT_SCHWAB_CSV, INIT_PERSONAL_CONFIG } from "./default_values.js"
 import { isSymbolSellable, setSellableSymbolMode } from "./rebalance_options.js"
-import * as d3 from "d3";
 import PieChart from "./pie_chart.js"
 
 import DataTable from 'datatables.net-dt';
 
 const VTEB_SYMBOL = "VTEB";
+const ALLOCATION_COLOR_DOMAIN = ["VTI", "VXUS", "VTEB", "Cash"];
+const ALLOCATION_COLORS = [
+    "#3f7fac",
+    "#4d9b83",
+    "#c99b42",
+    "#9ca6b5",
+    "#756bb1",
+    "#c56e5d",
+    "#5f8ec4",
+    "#649b9d",
+    "#aa78a5",
+    "#aa8454"
+];
 // import 'datatables.net-buttons-dt';
 // import 'datatables.net-responsive-dt';
 // import JSZip from 'jszip'; // For Excel export
@@ -47,6 +59,7 @@ function handleClick() {
         data: allEquityInfo,
         destroy: true,
         paging: false,
+        info: false,
         dom: DATA_TABLE_DOM,
         buttons: DATA_TABLE_BUTTONS,
         columns: [
@@ -94,6 +107,7 @@ function handleClick() {
         order: [[0, 'asc']],
         destroy: true,
         paging: false,
+        info: false,
         dom: DATA_TABLE_DOM,
         buttons: DATA_TABLE_BUTTONS,
         columns: [
@@ -198,7 +212,7 @@ function handleClick() {
     // pieAfter.push({ name: "", value: 0 })
     // pieAfter.push({ name: "Cash Buffer", value: bufferCashActual })
 
-    const WIDTH = 500;
+    const WIDTH = 360;
 
 
     const SETTINGS = {
@@ -206,7 +220,9 @@ function handleClick() {
         value: d => d.value,
         width: WIDTH,
         height: WIDTH,
-        colors: d3.schemeTableau10,
+        names: ALLOCATION_COLOR_DOMAIN,
+        colors: ALLOCATION_COLORS,
+        strokeWidth: 2,
         format: "$,.2f"
     }
     document.getElementById("pieBefore").replaceChildren(PieChart(pieBefore, SETTINGS));
@@ -277,7 +293,7 @@ function dropFile(dropEvent, element) {
 
 window.addEventListener("DOMContentLoaded", function () {
     const inputCSV = document.getElementById("inputCSV");
-    inputCSV.addEventListener("keyup", inputChanged);
+    inputCSV.addEventListener("input", inputChanged);
     inputCSV.ondrop = function (dropEvent) {
         return dropFile(dropEvent, inputCSV);
     };
