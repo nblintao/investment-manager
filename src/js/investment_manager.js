@@ -10,7 +10,9 @@ function runInvestmentManager(schwabCSV, personalConfig) {
         allPrices,
         allEquityInfo,
         personalConfig.targetPercentage,
-        schwab.cash + personalConfig.additionalCash, personalConfig.bufferCash
+        schwab.cash + personalConfig.additionalCash,
+        personalConfig.bufferCash,
+        personalConfig.sellableSymbols ?? []
     );
     // console.log(plan);
     return [allEquityInfo, plan];
@@ -209,19 +211,35 @@ function checkTargetPercentage(targetPercentage) {
         alert(`targetPercentage should add up to 100! Current sum: ${sum}`)
     }
 }
-function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, bufferCash) {
+function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, bufferCash, sellableSymbols = []) {
     checkTargetPercentage(targetPercentage);
+    const sellableSymbolSet = new Set(sellableSymbols);
     let plan = {}
+    let minimumMarketValue = {}
     for (let symbol in targetPercentage) {
         plan[symbol] = {
             symbol: symbol,
             oldMarketValue: 0
         }
+        minimumMarketValue[symbol] = 0
     }
     let oldMarketValue = 0
     for (let i = 0; i < allEquityInfo.length; i++) {
         const e = allEquityInfo[i];
         plan[e.mapTo].oldMarketValue += e.marketValue;
+        let sellableMarketValue = 0;
+        if (
+            e.source === "Schwab" &&
+            e.symbol === e.mapTo &&
+            sellableSymbolSet.has(e.symbol)
+        ) {
+            const tradePrice = allPrices[e.mapTo];
+            const marketValueByShares = e.quantity * tradePrice;
+            if (Number.isFinite(marketValueByShares) && marketValueByShares > 0) {
+                sellableMarketValue = Math.max(0, Math.min(e.marketValue, marketValueByShares));
+            }
+        }
+        minimumMarketValue[e.mapTo] += e.marketValue - sellableMarketValue;
         oldMarketValue += e.marketValue;
     }
 
@@ -244,19 +262,20 @@ function calculateBuyPlan(allPrices, allEquityInfo, targetPercentage, cash, buff
 
     // e.oldMarketValue + e.addValueNeeded always == e.ableMarketValue
 
-    // This section tries to figure out the actual addValueNeeded.
-    // Only distributed across the "remain" equities that are underweighted.
+    // Distribute the available value across target buckets while respecting each
+    // bucket's sell floor. Only exact Schwab target symbols listed in
+    // sellableSymbols may be sold; outside and mapped holdings stay put.
     let ableMarketValueOfRemain = oldMarketValue + expectAddValue;
     let targetPercentageOfRemaining = 100;
     var s = new Set(Object.keys(targetPercentage))
     while (true) {
         let equityRemoved = false;
         for (let e of s) {
-            if (plan[e].addValueNeeded < 0) {
-                plan[e].addValueNeeded = 0;
-                plan[e].ableMarketValue = plan[e].oldMarketValue
+            if (plan[e].ableMarketValue < minimumMarketValue[e]) {
+                plan[e].ableMarketValue = minimumMarketValue[e]
+                plan[e].addValueNeeded = plan[e].ableMarketValue - plan[e].oldMarketValue;
 
-                ableMarketValueOfRemain -= plan[e].oldMarketValue;
+                ableMarketValueOfRemain -= plan[e].ableMarketValue;
                 targetPercentageOfRemaining -= plan[e].expectPercentage;
                 s.delete(e);
                 equityRemoved = true;

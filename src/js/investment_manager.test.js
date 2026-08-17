@@ -634,6 +634,205 @@ test("test calculateBuyPlan insufficient 2 added", () => {
 });
 
 
+test("test calculateBuyPlan sells only the actual configured VTEB position", () => {
+    const holdings = [
+        {
+            symbol: 'VTI',
+            quantity: 400,
+            price: 1,
+            marketValue: 400,
+            source: 'Schwab',
+            mapTo: 'VTI'
+        },
+        {
+            symbol: 'VXUS',
+            quantity: 300,
+            price: 1,
+            marketValue: 300,
+            source: 'Schwab',
+            mapTo: 'VXUS'
+        },
+        {
+            symbol: 'VTEB',
+            quantity: 2,
+            price: 50,
+            marketValue: 100,
+            source: 'Schwab',
+            mapTo: 'VTEB'
+        },
+        {
+            symbol: 'T-BND',
+            quantity: 200,
+            price: 1,
+            marketValue: 200,
+            source: 'Outside',
+            mapTo: 'VTEB'
+        }
+    ];
+
+    const result = calculateBuyPlan(
+        { VTI: 1, VXUS: 1, VTEB: 50 },
+        holdings,
+        TARGET_PERCENTAGE,
+        100,
+        0,
+        ['VTEB']
+    );
+    const plan = Object.fromEntries(result.planList.map(item => [item.symbol, item]));
+
+    expect(plan.VTI.addValueNeeded).toBeCloseTo(140);
+    expect(plan.VXUS.addValueNeeded).toBeCloseTo(60);
+    expect(plan.VTEB.addValueNeeded).toBeCloseTo(-100);
+    expect(plan.VTEB.addShares).toBeCloseTo(-2);
+    expect(plan.VTEB.ableMarketValue).toBeCloseTo(200);
+    expect(plan.Cash.addValueNeeded).toBeCloseTo(-100);
+    expect(
+        plan.VTI.addValueNeeded + plan.VXUS.addValueNeeded + plan.VTEB.addValueNeeded
+    ).toBeCloseTo(100);
+});
+
+
+test("test calculateBuyPlan can partially sell VTEB", () => {
+    const holdings = [
+        {
+            symbol: 'VTI',
+            quantity: 40,
+            price: 1,
+            marketValue: 40,
+            source: 'Schwab',
+            mapTo: 'VTI'
+        },
+        {
+            symbol: 'VXUS',
+            quantity: 30,
+            price: 1,
+            marketValue: 30,
+            source: 'Schwab',
+            mapTo: 'VXUS'
+        },
+        {
+            symbol: 'VTEB',
+            quantity: 30,
+            price: 1,
+            marketValue: 30,
+            source: 'Schwab',
+            mapTo: 'VTEB'
+        }
+    ];
+
+    const result = calculateBuyPlan(
+        SIMPLE_PRICE,
+        holdings,
+        TARGET_PERCENTAGE,
+        10,
+        0,
+        ['VTEB']
+    );
+    const plan = Object.fromEntries(result.planList.map(item => [item.symbol, item]));
+
+    expect(plan.VTI.addValueNeeded).toBeCloseTo(19.4);
+    expect(plan.VXUS.addValueNeeded).toBeCloseTo(9.6);
+    expect(plan.VTEB.addValueNeeded).toBeCloseTo(-19);
+    expect(plan.VTEB.addShares).toBeCloseTo(-19);
+});
+
+
+test("test calculateBuyPlan does not sell an outside VTEB position", () => {
+    const holdings = [
+        {
+            symbol: 'VTI',
+            quantity: 400,
+            price: 1,
+            marketValue: 400,
+            source: 'Schwab',
+            mapTo: 'VTI'
+        },
+        {
+            symbol: 'VXUS',
+            quantity: 300,
+            price: 1,
+            marketValue: 300,
+            source: 'Schwab',
+            mapTo: 'VXUS'
+        },
+        {
+            symbol: 'VTEB',
+            quantity: 2,
+            price: 50,
+            marketValue: 100,
+            source: 'Outside',
+            mapTo: 'VTEB'
+        },
+        {
+            symbol: 'T-BND',
+            quantity: 200,
+            price: 1,
+            marketValue: 200,
+            source: 'Outside',
+            mapTo: 'VTEB'
+        }
+    ];
+
+    const result = calculateBuyPlan(
+        { VTI: 1, VXUS: 1, VTEB: 50 },
+        holdings,
+        TARGET_PERCENTAGE,
+        100,
+        0,
+        ['VTEB']
+    );
+    const plan = Object.fromEntries(result.planList.map(item => [item.symbol, item]));
+
+    expect(plan.VTI.addValueNeeded).toBeCloseTo(80);
+    expect(plan.VXUS.addValueNeeded).toBeCloseTo(20);
+    expect(plan.VTEB.addValueNeeded).toBe(0);
+    expect(plan.VTEB.addShares).toBe(0);
+});
+
+
+
+
+test("test calculateBuyPlan does not sell a mapped bond symbol", () => {
+    const holdings = [
+        {
+            symbol: 'VTI',
+            quantity: 40,
+            price: 1,
+            marketValue: 40,
+            source: 'Schwab',
+            mapTo: 'VTI'
+        },
+        {
+            symbol: 'VXUS',
+            quantity: 30,
+            price: 1,
+            marketValue: 30,
+            source: 'Schwab',
+            mapTo: 'VXUS'
+        },
+        {
+            symbol: 'MUB',
+            quantity: 30,
+            price: 1,
+            marketValue: 30,
+            source: 'Schwab',
+            mapTo: 'VTEB'
+        }
+    ];
+
+    const result = calculateBuyPlan(
+        SIMPLE_PRICE,
+        holdings,
+        TARGET_PERCENTAGE,
+        10,
+        0,
+        ['MUB']
+    );
+    const plan = Object.fromEntries(result.planList.map(item => [item.symbol, item]));
+
+    expect(plan.VTEB.addValueNeeded).toBe(0);
+    expect(plan.VTEB.addShares).toBe(0);
+});
 
 
 test("test calculateBuyPlan buffer more than cash", () => {

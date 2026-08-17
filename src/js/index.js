@@ -1,9 +1,12 @@
 import { runInvestmentManager } from "./investment_manager.js"
 import { INIT_SCHWAB_CSV, INIT_PERSONAL_CONFIG } from "./default_values.js"
+import { isSymbolSellable, setSellableSymbolMode } from "./rebalance_options.js"
 import * as d3 from "d3";
 import PieChart from "./pie_chart.js"
 
 import DataTable from 'datatables.net-dt';
+
+const VTEB_SYMBOL = "VTEB";
 // import 'datatables.net-buttons-dt';
 // import 'datatables.net-responsive-dt';
 // import JSZip from 'jszip'; // For Excel export
@@ -20,7 +23,11 @@ import DataTable from 'datatables.net-dt';
 function handleClick() {
     // Get the inputs from the text boxes
     var inputCSV = document.getElementById("inputCSV").value;
-    var inputConfig = JSON.parse(document.getElementById("inputConfig").value);
+    var inputConfigElement = document.getElementById("inputConfig");
+    var inputConfig = JSON.parse(inputConfigElement.value);
+    var allowVtebSell = document.getElementById("allowVtebSell");
+    inputConfig = setSellableSymbolMode(inputConfig, VTEB_SYMBOL, allowVtebSell.checked);
+    inputConfigElement.value = JSON.stringify(inputConfig, null, 2);
 
     var outputs = runInvestmentManager(inputCSV, inputConfig);
     var allEquityInfo = outputs[0];
@@ -137,7 +144,7 @@ function handleClick() {
             },
             {
                 data: 'addValueNeeded',
-                title: 'Buy/$',
+                title: 'Trade/$',
                 render: renderNum,
                 className: "dt-body-right",
             },
@@ -149,7 +156,7 @@ function handleClick() {
             },
             {
                 data: 'addShares',
-                title: 'Buy/Shares',
+                title: 'Trade/Shares',
                 render: renderNum,
                 className: "dt-body-right",
             },
@@ -215,6 +222,36 @@ function inputChanged() {
     document.getElementById("pigBtn").disabled = false;
 }
 
+function syncVtebSellToggleFromConfig() {
+    const inputConfig = document.getElementById("inputConfig");
+    const allowVtebSell = document.getElementById("allowVtebSell");
+    try {
+        const config = JSON.parse(inputConfig.value);
+        allowVtebSell.checked = isSymbolSellable(config, VTEB_SYMBOL);
+        allowVtebSell.indeterminate = false;
+        allowVtebSell.disabled = false;
+        return true;
+    } catch {
+        allowVtebSell.indeterminate = true;
+        allowVtebSell.disabled = true;
+        return false;
+    }
+}
+
+function configChanged() {
+    const configIsValid = syncVtebSellToggleFromConfig();
+    document.getElementById("pigBtn").disabled = !configIsValid;
+}
+
+function updateVtebSellOption() {
+    const inputConfig = document.getElementById("inputConfig");
+    const allowVtebSell = document.getElementById("allowVtebSell");
+    const config = JSON.parse(inputConfig.value);
+    const updatedConfig = setSellableSymbolMode(config, VTEB_SYMBOL, allowVtebSell.checked);
+    inputConfig.value = JSON.stringify(updatedConfig, null, 2);
+    inputChanged();
+}
+
 function readFileInto(file, element) {
     if (!file) {
         return;
@@ -222,7 +259,11 @@ function readFileInto(file, element) {
     var reader = new FileReader();
     reader.onload = function (readEvent) {
         element.value = readEvent.target.result;
-        inputChanged();
+        if (element.id === "inputConfig") {
+            configChanged();
+        } else {
+            inputChanged();
+        }
     };
     reader.readAsText(file);
 }
@@ -251,7 +292,7 @@ window.addEventListener("DOMContentLoaded", function () {
     });
 
     const inputConfig = document.getElementById("inputConfig");
-    inputConfig.addEventListener("keyup", inputChanged);
+    inputConfig.addEventListener("input", configChanged);
     inputConfig.ondrop = function (dropEvent) {
         return dropFile(dropEvent, inputConfig);
     };
@@ -259,8 +300,12 @@ window.addEventListener("DOMContentLoaded", function () {
     const pigBtn = document.getElementById("pigBtn");
     pigBtn.addEventListener("click", handleClick);
 
+    const allowVtebSell = document.getElementById("allowVtebSell");
+    allowVtebSell.addEventListener("change", updateVtebSellOption);
+
     inputCSV.value = INIT_SCHWAB_CSV
     inputConfig.value = JSON.stringify(INIT_PERSONAL_CONFIG, null, 2);
+    syncVtebSellToggleFromConfig();
     handleClick();
 
 }, false);
