@@ -1,10 +1,23 @@
 import CSVToArray from "./csv_to_array.js"
 
 function runInvestmentManager(schwabCSV, personalConfig) {
-    let schwab = parseSchwabCSV(schwabCSV);
+    let diagnostics = {
+        skippedRows: [],
+        defaultMappings: [],
+        unusedMappings: []
+    };
+    let schwab = parseSchwabCSV(schwabCSV, diagnostics);
     let allPrices = getAllPrices(schwab.equities, personalConfig.hardcodePrice);
     let mapTo = inverseMapping(personalConfig.mapping);
-    let allEquityInfo = getAllEquityInfo(schwab.equities, mapTo, personalConfig.defaultMapTo, personalConfig.outsideHoldings, allPrices, personalConfig.targetPercentage);
+    let allEquityInfo = getAllEquityInfo(
+        schwab.equities,
+        mapTo,
+        personalConfig.defaultMapTo,
+        personalConfig.outsideHoldings,
+        allPrices,
+        personalConfig.targetPercentage,
+        diagnostics
+    );
     // console.log(allEquityInfo);
     let plan = calculateBuyPlan(
         allPrices,
@@ -15,11 +28,12 @@ function runInvestmentManager(schwabCSV, personalConfig) {
         personalConfig.sellableSymbols ?? []
     );
     // console.log(plan);
-    return [allEquityInfo, plan];
+    return [allEquityInfo, plan, diagnostics];
 }
 
 // Log in schwab.com > Select account > "Export"
-function parseSchwabCSV(content) {
+function parseSchwabCSV(content, diagnostics = { skippedRows: [] }) {
+    diagnostics.skippedRows ??= [];
     const SYMBOL = 'Symbol';
     const QUANTITY = "Qty (Quantity)";
     const PRICE = 'Price';
@@ -103,11 +117,15 @@ function parseSchwabCSV(content) {
             equities.push(equity);
         } else {
             const issues = [];
-            if (!Number.isFinite(equity.quantity)) issues.push(`quantity invalid: "${rawQty}"`);
-            if (!Number.isFinite(equity.price)) issues.push(`price invalid: "${rawPrice}"`);
-            if (!Number.isFinite(equity.marketValue)) issues.push(`marketValue invalid: "${rawMV}"`);
+            if (!Number.isFinite(equity.quantity)) issues.push({ field: "quantity", value: String(rawQty ?? "") });
+            if (!Number.isFinite(equity.price)) issues.push({ field: "price", value: String(rawPrice ?? "") });
+            if (!Number.isFinite(equity.marketValue)) issues.push({ field: "marketValue", value: String(rawMV ?? "") });
+            diagnostics.skippedRows.push({ symbol, issues });
             // Use console.warn so browser devtools highlight it as a warning.
-            console.warn(`[parseSchwabCSV] Skip ${symbol} — ${issues.join('; ')}`);
+            const issueSummary = issues
+                .map(issue => `${issue.field} invalid: "${issue.value}"`)
+                .join('; ');
+            console.warn(`[parseSchwabCSV] Skip ${symbol} — ${issueSummary}`);
         }
     }
     result.equities = equities
@@ -148,7 +166,7 @@ function inverseMapping(mapping) {
 }
 
 
-function mapSymbol(symbol, mapTo, defaultMapTo, targetPercentage, unusedSymbolsInMapTo) {
+function mapSymbol(symbol, mapTo, defaultMapTo, targetPercentage, unusedSymbolsInMapTo, mappingDiagnostics) {
     let mapped;
     if (symbol in mapTo) {
         mapped = mapTo[symbol];
@@ -158,6 +176,7 @@ function mapSymbol(symbol, mapTo, defaultMapTo, targetPercentage, unusedSymbolsI
         } else {
             mapped = defaultMapTo;
             console.warn("[mapSymbol] equity " + symbol + " uses default " + defaultMapTo)
+            mappingDiagnostics.defaultMappings.push({ symbol, mapTo: mapped });
         }
     }
     if (!(mapped in targetPercentage)) {
@@ -168,13 +187,23 @@ function mapSymbol(symbol, mapTo, defaultMapTo, targetPercentage, unusedSymbolsI
     }
     return mapped;
 }
-function getAllEquityInfo(equities, mapTo, defaultMapTo, outsideHoldings, allPrices, targetPercentage) {
+function getAllEquityInfo(
+    equities,
+    mapTo,
+    defaultMapTo,
+    outsideHoldings,
+    allPrices,
+    targetPercentage,
+    mappingDiagnostics = { defaultMappings: [], unusedMappings: [] }
+) {
+    mappingDiagnostics.defaultMappings ??= [];
+    mappingDiagnostics.unusedMappings ??= [];
     const unusedSymbolsInMapTo = new Set(Object.keys(mapTo));
     let allEquityInfo = [...equities];
     for (let i = 0; i < allEquityInfo.length; i++) {
         let e = allEquityInfo[i];
         e.source = "Schwab"
-        e.mapTo = mapSymbol(e.symbol, mapTo, defaultMapTo, targetPercentage, unusedSymbolsInMapTo);
+        e.mapTo = mapSymbol(e.symbol, mapTo, defaultMapTo, targetPercentage, unusedSymbolsInMapTo, mappingDiagnostics);
     }
     for (let i = 0; i < outsideHoldings.length; i++) {
         let e = {}
@@ -186,7 +215,7 @@ function getAllEquityInfo(equities, mapTo, defaultMapTo, outsideHoldings, allPri
         e.price = allPrices[e.symbol];
         e.marketValue = e.quantity * e.price;
         e.source = "Outside";
-        e.mapTo = mapSymbol(e.symbol, mapTo, defaultMapTo, targetPercentage, unusedSymbolsInMapTo);
+        e.mapTo = mapSymbol(e.symbol, mapTo, defaultMapTo, targetPercentage, unusedSymbolsInMapTo, mappingDiagnostics);
         allEquityInfo.push(e)
     }
     // Warn if there are unused mappings excluding known placeholders like "Fixed Income".
@@ -195,6 +224,10 @@ function getAllEquityInfo(equities, mapTo, defaultMapTo, outsideHoldings, allPri
     if (unusedExcludingPlaceholders.length > 0) {
         console.warn(`[getAllEquityInfo] Unused mappings (excluding placeholders): ${unusedExcludingPlaceholders.join(', ')}`);
     }
+    mappingDiagnostics.defaultMappings = Array.from(
+        new Map(mappingDiagnostics.defaultMappings.map(item => [`${item.symbol}\u0000${item.mapTo}`, item])).values()
+    ).sort((a, b) => a.symbol.localeCompare(b.symbol));
+    mappingDiagnostics.unusedMappings = unusedExcludingPlaceholders.sort((a, b) => a.localeCompare(b));
     console.log("Unused mappings: ", unusedSymbolsInMapTo);
     // console.log(allEquityInfo)
     return allEquityInfo;

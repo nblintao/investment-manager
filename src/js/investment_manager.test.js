@@ -40,6 +40,29 @@ Account Total,--,--,--,--,--,$0.00,0%,$0.00,N/A,N/A,N/A,--,--,--,--,--
     });
 });
 
+test('reports skipped CSV rows with invalid numeric fields', () => {
+    const diagnostics = { skippedRows: [] };
+    const csv = `
+"Symbol","Qty (Quantity)","Price","Mkt Val (Market Value)"
+436CVR021,1,N/A,N/A
+Cash & Cash Investments,--,--,$0.00
+Account Total,--,--,$0.00
+`;
+
+    expect(parseSchwabCSV(csv, diagnostics)).toStrictEqual({
+        cash: 0,
+        equities: [],
+        totalMarketValue: 0
+    });
+    expect(diagnostics.skippedRows).toStrictEqual([{
+        symbol: '436CVR021',
+        issues: [
+            { field: 'price', value: 'N/A' },
+            { field: 'marketValue', value: 'N/A' }
+        ]
+    }]);
+});
+
 // Add some more info in 2's Google Sheets and then export as csv.
 const SCHWAB_CSV_3 = `
 "Positions for account Personal ...977 as of 07:28 PM ET, 2023/06/04",,,,,,,,,,,,,,,,
@@ -402,6 +425,28 @@ test("test analyzeAllEquities", () => {
         ALL_PRICES,
         TARGET_PERCENTAGE
     )).toStrictEqual(ALL_EQUITY_INFO);
+});
+
+test("reports default and unused mapping diagnostics", () => {
+    const diagnostics = { defaultMappings: [], unusedMappings: [] };
+
+    getAllEquityInfo(
+        [
+            { symbol: 'USED', quantity: 1, price: 10, marketValue: 10 },
+            { symbol: 'DEFAULT', quantity: 1, price: 20, marketValue: 20 },
+        ],
+        { USED: 'VTI', UNUSED: 'VTI', VTI: 'VTI' },
+        'VTI',
+        [],
+        { USED: 10, DEFAULT: 20 },
+        { VTI: 100 },
+        diagnostics
+    );
+
+    expect(diagnostics).toStrictEqual({
+        defaultMappings: [{ symbol: 'DEFAULT', mapTo: 'VTI' }],
+        unusedMappings: ['UNUSED', 'VTI']
+    });
 });
 const PLAN = {
     planList: [
@@ -941,5 +986,17 @@ const PERSONAL_CONFIG = {
 }
 test("test runInvestmentManager", () => {
     expect(runInvestmentManager(SCHWAB_CSV_3, PERSONAL_CONFIG
-    )).toStrictEqual([ALL_EQUITY_INFO, PLAN])
+    )).toStrictEqual([ALL_EQUITY_INFO, PLAN, {
+        skippedRows: [],
+        defaultMappings: [
+            { symbol: 'AAPL', mapTo: 'VTI' },
+            { symbol: 'AMZN', mapTo: 'VTI' },
+            { symbol: 'GOOG', mapTo: 'VTI' },
+            { symbol: 'GOOGL', mapTo: 'VTI' },
+            { symbol: 'META', mapTo: 'VTI' },
+            { symbol: 'MSFT', mapTo: 'VTI' },
+            { symbol: 'NVDA', mapTo: 'VTI' },
+        ],
+        unusedMappings: []
+    }])
 })

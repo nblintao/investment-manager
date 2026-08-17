@@ -85,6 +85,28 @@
         <section class="panel data-panel" aria-labelledby="planHeading">
             <div class="section-heading compact">
                 <h2 id="planHeading">Rebalance plan</h2>
+                <details id="reviewNotes" class="review-notes" hidden>
+                    <summary>
+                        <span>Review notes</span>
+                    </summary>
+                    <div class="review-notes-popover">
+                        <section id="skippedRowsGroup" class="review-notes-group" hidden>
+                            <h3>Skipped CSV rows</h3>
+                            <p>These positions had invalid numeric values and were excluded.</p>
+                            <ul id="skippedRowsList" class="skipped-rows-list"></ul>
+                        </section>
+                        <section id="defaultMappingGroup" class="review-notes-group" hidden>
+                            <h3>Using default mapping</h3>
+                            <p>These positions were not explicitly configured.</p>
+                            <ul id="defaultMappingList" class="default-mapping-list"></ul>
+                        </section>
+                        <section id="unusedMappingGroup" class="review-notes-group" hidden>
+                            <h3>Unused mappings</h3>
+                            <p>These configured symbols are not in the current holdings.</p>
+                            <ul id="unusedMappingList" class="unused-mapping-list"></ul>
+                        </section>
+                    </div>
+                </details>
             </div>
             <div class="table-scroll plan-table-scroll">
                 <table id="plan" class="table align-middle mb-0"></table>

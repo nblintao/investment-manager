@@ -31,6 +31,91 @@ const ALLOCATION_COLORS = [
 // DataTable.Buttons.jszip(JSZip);
 // DataTable.Buttons.pdfMake(PDFMake);
 
+function renderReviewNotes(diagnostics = {}) {
+    const details = document.getElementById("reviewNotes");
+    const skippedGroup = document.getElementById("skippedRowsGroup");
+    const skippedList = document.getElementById("skippedRowsList");
+    const defaultGroup = document.getElementById("defaultMappingGroup");
+    const defaultList = document.getElementById("defaultMappingList");
+    const unusedGroup = document.getElementById("unusedMappingGroup");
+    const unusedList = document.getElementById("unusedMappingList");
+
+    const skippedRows = diagnostics.skippedRows ?? [];
+    const defaultMappings = Array.from(
+        new Map((diagnostics.defaultMappings ?? []).map(item => [
+            `${item.symbol}\u0000${item.mapTo}`,
+            item
+        ])).values()
+    ).sort((a, b) => a.symbol.localeCompare(b.symbol));
+    const unusedMappings = Array.from(new Set(diagnostics.unusedMappings ?? []))
+        .sort((a, b) => a.localeCompare(b));
+    const diagnosticCount = skippedRows.length + defaultMappings.length + unusedMappings.length;
+
+    if (diagnosticCount === 0) {
+        details.hidden = true;
+        details.open = false;
+        skippedList.replaceChildren();
+        defaultList.replaceChildren();
+        unusedList.replaceChildren();
+        return;
+    }
+
+    details.hidden = false;
+
+    const fieldLabels = {
+        quantity: "Quantity",
+        price: "Price",
+        marketValue: "Market value"
+    };
+    skippedGroup.hidden = skippedRows.length === 0;
+    skippedGroup.querySelector("h3").textContent = `Skipped CSV rows · ${skippedRows.length}`;
+    skippedList.replaceChildren(...skippedRows.map(item => {
+        const row = document.createElement("li");
+        const symbol = document.createElement("code");
+        const issues = document.createElement("div");
+        symbol.className = "skipped-row-symbol";
+        symbol.textContent = item.symbol;
+        issues.className = "skipped-row-issues";
+        issues.replaceChildren(...item.issues.map(issue => {
+            const issueLabel = document.createElement("span");
+            const value = issue.value || "empty";
+            issueLabel.className = "skipped-row-issue";
+            issueLabel.textContent = `${fieldLabels[issue.field] ?? issue.field}: ${value}`;
+            return issueLabel;
+        }));
+        row.append(symbol, issues);
+        return row;
+    }));
+
+    defaultGroup.hidden = defaultMappings.length === 0;
+    defaultGroup.querySelector("h3").textContent = `Using default mapping · ${defaultMappings.length}`;
+    defaultList.replaceChildren(...defaultMappings.map(item => {
+        const row = document.createElement("li");
+        const symbol = document.createElement("code");
+        const arrow = document.createElement("span");
+        const mapTo = document.createElement("code");
+        symbol.textContent = item.symbol;
+        symbol.title = item.symbol;
+        arrow.className = "default-mapping-arrow";
+        arrow.textContent = "→";
+        mapTo.textContent = item.mapTo;
+        mapTo.title = item.mapTo;
+        row.append(symbol, arrow, mapTo);
+        return row;
+    }));
+
+    unusedGroup.hidden = unusedMappings.length === 0;
+    unusedGroup.querySelector("h3").textContent = `Unused mappings · ${unusedMappings.length}`;
+    unusedList.replaceChildren(...unusedMappings.map(item => {
+        const row = document.createElement("li");
+        const symbol = document.createElement("code");
+        symbol.textContent = item;
+        symbol.title = item;
+        row.append(symbol);
+        return row;
+    }));
+}
+
 // This is the main function that handles the button click event
 function handleClick() {
     // Get the inputs from the text boxes
@@ -44,6 +129,8 @@ function handleClick() {
     var outputs = runInvestmentManager(inputCSV, inputConfig);
     var allEquityInfo = outputs[0];
     var plan = outputs[1];
+    var diagnostics = outputs[2];
+    renderReviewNotes(diagnostics);
 
 
     let renderNum = DataTable.render.number(',', '.', 2, '');
@@ -212,7 +299,7 @@ function handleClick() {
     // pieAfter.push({ name: "", value: 0 })
     // pieAfter.push({ name: "Cash Buffer", value: bufferCashActual })
 
-    const WIDTH = 360;
+    const WIDTH = 330;
 
 
     const SETTINGS = {

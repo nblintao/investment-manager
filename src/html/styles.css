@@ -386,6 +386,182 @@ table.dataTable tbody tr:hover {
     padding-left: 0;
 }
 
+.review-notes {
+    position: relative;
+    z-index: 10;
+    margin-left: auto;
+}
+
+.review-notes[hidden] {
+    display: none;
+}
+
+.review-notes > summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 28px;
+    padding: 4px 7px 4px 9px;
+    color: #4d5f73;
+    background: var(--panel-muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+}
+
+.review-notes > summary::-webkit-details-marker {
+    display: none;
+}
+
+.review-notes > summary::after {
+    color: #718096;
+    content: "⌄";
+    font-size: 0.72rem;
+    line-height: 1;
+    transition: transform 140ms ease;
+}
+
+.review-notes[open] > summary {
+    color: var(--brand);
+    background: var(--brand-soft);
+    border-color: #c9e2f2;
+}
+
+.review-notes[open] > summary::after {
+    transform: rotate(180deg);
+}
+
+.review-notes > summary:focus-visible {
+    outline: 3px solid rgba(70, 158, 218, 0.24);
+    outline-offset: 2px;
+}
+
+.review-notes-popover {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 8px);
+    right: 0;
+    width: min(520px, calc(100vw - 56px));
+    max-height: 360px;
+    padding: 13px;
+    overflow-y: auto;
+    color: var(--text);
+    background: var(--panel-bg);
+    border: 1px solid var(--border-strong);
+    border-radius: 11px;
+    box-shadow: 0 16px 38px rgba(31, 50, 73, 0.16);
+}
+
+.review-notes-group + .review-notes-group {
+    margin-top: 13px;
+    padding-top: 12px;
+    border-top: 1px solid #e8edf2;
+}
+
+.review-notes-group h3 {
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 750;
+}
+
+.review-notes-group p {
+    margin: 3px 0 9px;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+}
+
+.skipped-rows-list,
+.default-mapping-list,
+.unused-mapping-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.skipped-rows-list {
+    display: grid;
+    gap: 6px;
+}
+
+.skipped-rows-list li {
+    padding: 7px 8px;
+    background: #fff8e7;
+    border: 1px solid #f0dfb1;
+    border-radius: 7px;
+}
+
+.skipped-row-symbol {
+    display: block;
+    margin-bottom: 5px;
+    color: #5f4916;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.76rem;
+    font-weight: 750;
+}
+
+.skipped-row-issues {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.skipped-row-issue {
+    padding: 2px 5px;
+    color: #765b1a;
+    background: rgba(240, 223, 177, 0.5);
+    border-radius: 4px;
+    font-size: 0.7rem;
+}
+
+.default-mapping-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.default-mapping-list li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 6px;
+    padding: 6px 8px;
+    background: #fbf6e9;
+    border: 1px solid #f0e2bd;
+    border-radius: 7px;
+    font-size: 0.76rem;
+}
+
+.default-mapping-list code,
+.unused-mapping-list code {
+    overflow: hidden;
+    color: #344054;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.74rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.default-mapping-arrow {
+    color: #9a7626;
+}
+
+.unused-mapping-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.unused-mapping-list li {
+    max-width: 100%;
+    padding: 4px 7px;
+    background: #f1f4f7;
+    border-radius: 6px;
+}
+
 .chart-card {
     height: 100%;
     padding: 13px;
@@ -407,7 +583,7 @@ table.dataTable tbody tr:hover {
 
 .chart-visual svg {
     display: block;
-    width: min(100%, 360px);
+    width: min(100%, 330px);
     height: auto;
     overflow: visible;
 }
@@ -451,6 +627,20 @@ table.dataTable tbody tr:hover {
         align-items: flex-start;
         flex-direction: column;
         gap: 3px;
+    }
+
+    .review-notes {
+        margin-left: 0;
+    }
+
+    .review-notes-popover {
+        right: auto;
+        left: 0;
+        width: calc(100vw - 54px);
+    }
+
+    .default-mapping-list {
+        grid-template-columns: 1fr;
     }
 
     .editor-panel,
