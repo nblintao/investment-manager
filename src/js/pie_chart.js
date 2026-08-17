@@ -13,6 +13,8 @@ export default function PieChart(data, {
     outerRadius = Math.min(width, height) / 2, // outer radius of pie, in pixels
     labelRadius = (innerRadius * 0.2 + outerRadius * 0.8), // center radius of labels
     format = ",", // a format specifier for values (in the label)
+    showPercentage = false, // append each value's share of the pie to its label
+    percentageFormat = ".1%", // format specifier for the appended percentage
     names, // array of names (the domain of the color scale)
     colors, // array of colors for names
     stroke = innerRadius > 0 ? "none" : "white", // stroke separating widths
@@ -39,7 +41,15 @@ export default function PieChart(data, {
     // Compute titles.
     if (title === undefined) {
         const formatValue = d3.format(format);
-        title = i => `${N[i]}\n${formatValue(V[i])}`;
+        const formatPercentage = d3.format(percentageFormat);
+        const totalValue = d3.sum(I, i => V[i]);
+        title = i => {
+            const lines = [N[i], formatValue(V[i])];
+            if (showPercentage) {
+                lines.push(formatPercentage(totalValue > 0 ? V[i] / totalValue : 0));
+            }
+            return lines.join("\n");
+        };
     } else {
         const O = d3.map(data, d => d);
         const T = title;
@@ -77,6 +87,7 @@ export default function PieChart(data, {
         .data(arcs)
         .join("text")
         .attr("transform", d => `translate(${arcLabel.centroid(d)})`)
+        .style("fill", "#172033")
         .selectAll("tspan")
         .data(d => {
             const lines = `${title(d.data)}`.split(/\n/);
@@ -89,9 +100,6 @@ export default function PieChart(data, {
         .attr("x", 0)
         .attr("y", (_, i, nodes) => `${(i - (nodes.length - 1) / 2) * 1.15}em`)
         .attr("font-weight", (_, i) => i ? null : "bold")
-        .attr("paint-order", "stroke")
-        .attr("stroke", "rgba(255, 255, 255, 0.72)")
-        .attr("stroke-width", 2.5)
         .text(d => d);
 
     return Object.assign(svg.node(), { scales: { color } });

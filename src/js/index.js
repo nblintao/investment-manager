@@ -8,16 +8,16 @@ import DataTable from 'datatables.net-dt';
 const VTEB_SYMBOL = "VTEB";
 const ALLOCATION_COLOR_DOMAIN = ["VTI", "VXUS", "VTEB", "Cash"];
 const ALLOCATION_COLORS = [
-    "#3f7fac",
-    "#4d9b83",
-    "#c99b42",
-    "#9ca6b5",
-    "#756bb1",
-    "#c56e5d",
-    "#5f8ec4",
-    "#649b9d",
-    "#aa78a5",
-    "#aa8454"
+    "#82abc7",
+    "#83b39e",
+    "#d9b866",
+    "#b8c1cd",
+    "#b0a8d5",
+    "#dea596",
+    "#9bb5cf",
+    "#98bdbd",
+    "#cbaac6",
+    "#cdb08d"
 ];
 // import 'datatables.net-buttons-dt';
 // import 'datatables.net-responsive-dt';
@@ -307,14 +307,17 @@ function handleClick() {
         value: d => d.value,
         width: WIDTH,
         height: WIDTH,
+        labelRadius: WIDTH * 0.35,
         names: ALLOCATION_COLOR_DOMAIN,
         colors: ALLOCATION_COLORS,
         strokeWidth: 2,
-        format: "$,.2f"
+        format: "$,.2f",
+        showPercentage: true
     }
     document.getElementById("pieBefore").replaceChildren(PieChart(pieBefore, SETTINGS));
     document.getElementById("pieAfter").replaceChildren(PieChart(pieAfter, SETTINGS));
     SETTINGS.format = ".0%"
+    SETTINGS.showPercentage = false
     document.getElementById("pieExpect").replaceChildren(PieChart(pieExpect, SETTINGS));
 
     // Done. Set button back to disabled to show it's completed.

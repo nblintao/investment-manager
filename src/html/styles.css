@@ -327,8 +327,7 @@ table.dataTable thead td {
     border-bottom: 1px solid var(--border) !important;
     font-size: 0.68rem;
     font-weight: 780;
-    letter-spacing: 0.045em;
-    text-transform: uppercase;
+    letter-spacing: 0.015em;
     white-space: nowrap;
 }
 
@@ -349,12 +348,12 @@ table.dataTable tbody td {
 }
 
 table.dataTable#plan {
-    font-size: 0.9rem;
+    font-size: 0.96rem;
 }
 
 table.dataTable#plan thead th,
 table.dataTable#plan thead td {
-    font-size: 0.74rem;
+    font-size: 0.8rem;
 }
 
 table.dataTable.stripe > tbody > tr.odd > *,
@@ -586,10 +585,6 @@ table.dataTable tbody tr:hover {
     width: min(100%, 330px);
     height: auto;
     overflow: visible;
-}
-
-.chart-visual svg text {
-    fill: #2f3d51;
 }
 
 @media (max-width: 991.98px) {
