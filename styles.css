@@ -12,6 +12,11 @@
     --shadow: 0 12px 30px rgba(31, 50, 73, 0.06);
     --icon-white: brightness(0) invert(1);
     --icon-brand: invert(44%) sepia(92%) saturate(496%) hue-rotate(158deg) brightness(88%) contrast(91%);
+    --table-font-size: 0.78rem;
+    --table-heading-font-size: 0.68rem;
+    --plan-font-size: 1.05rem;
+    --plan-heading-font-size: 0.88rem;
+    --table-cell-inline-padding: clamp(8px, 1.3vw, 20px);
 }
 
 * {
@@ -296,14 +301,6 @@ body {
     overscroll-behavior-inline: contain;
 }
 
-.plan-table-scroll #plan_wrapper {
-    min-width: 1080px;
-}
-
-.holdings-table-scroll #allEquityInfo_wrapper {
-    min-width: 760px;
-}
-
 table.dataTable,
 table.table {
     width: 100% !important;
@@ -311,7 +308,7 @@ table.table {
     color: #344054;
     border-collapse: separate !important;
     border-spacing: 0;
-    font-size: 0.78rem;
+    font-size: var(--table-font-size);
 }
 
 table.dataTable.no-footer {
@@ -325,9 +322,10 @@ table.dataTable thead td {
     background: var(--panel-muted);
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border) !important;
-    font-size: 0.68rem;
+    font-size: var(--table-heading-font-size);
     font-weight: 780;
     letter-spacing: 0.015em;
+    text-transform: none;
     white-space: nowrap;
 }
 
@@ -347,13 +345,94 @@ table.dataTable tbody td {
     white-space: nowrap;
 }
 
+table.dataTable#plan,
+table.dataTable#allEquityInfo {
+    width: max-content !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+    font-variant-numeric: tabular-nums;
+}
+
 table.dataTable#plan {
-    font-size: 0.96rem;
+    font-size: clamp(
+        var(--table-font-size),
+        calc(0.8rem + 0.25vw),
+        var(--plan-font-size)
+    );
+}
+
+table.dataTable#plan thead th,
+table.dataTable#plan thead td,
+table.dataTable#allEquityInfo thead th,
+table.dataTable#allEquityInfo thead td {
+    padding-right: var(--table-cell-inline-padding);
+    padding-left: var(--table-cell-inline-padding);
 }
 
 table.dataTable#plan thead th,
 table.dataTable#plan thead td {
-    font-size: 0.8rem;
+    font-size: clamp(
+        var(--table-heading-font-size),
+        calc(0.7rem + 0.14vw),
+        var(--plan-heading-font-size)
+    );
+}
+
+table.dataTable#plan tbody td,
+table.dataTable#allEquityInfo tbody td {
+    padding-right: var(--table-cell-inline-padding);
+    padding-left: var(--table-cell-inline-padding);
+}
+
+.data-panel table.dataTable thead > tr > th.sorting,
+.data-panel table.dataTable thead > tr > th.sorting_asc,
+.data-panel table.dataTable thead > tr > th.sorting_desc,
+.data-panel table.dataTable thead > tr > th.sorting_asc_disabled,
+.data-panel table.dataTable thead > tr > th.sorting_desc_disabled {
+    padding-right: var(--table-cell-inline-padding);
+}
+
+.data-panel table.dataTable thead > tr > th.sorting::before,
+.data-panel table.dataTable thead > tr > th.sorting::after,
+.data-panel table.dataTable thead > tr > th.sorting_asc::before,
+.data-panel table.dataTable thead > tr > th.sorting_asc::after,
+.data-panel table.dataTable thead > tr > th.sorting_desc::before,
+.data-panel table.dataTable thead > tr > th.sorting_desc::after,
+.data-panel table.dataTable thead > tr > th.sorting_asc_disabled::before,
+.data-panel table.dataTable thead > tr > th.sorting_asc_disabled::after,
+.data-panel table.dataTable thead > tr > th.sorting_desc_disabled::before,
+.data-panel table.dataTable thead > tr > th.sorting_desc_disabled::after {
+    display: none;
+}
+
+.data-panel table.dataTable thead > tr > th.sorting:hover,
+.data-panel table.dataTable thead > tr > th.sorting_asc:hover,
+.data-panel table.dataTable thead > tr > th.sorting_desc:hover,
+.data-panel table.dataTable thead > tr > th[aria-sort] {
+    color: var(--brand);
+}
+
+.data-panel table.dataTable .sticky-symbol {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--panel-bg);
+    box-shadow: 8px 0 10px -11px rgba(31, 50, 73, 0.8);
+}
+
+.data-panel table.dataTable thead .sticky-symbol {
+    z-index: 3;
+    background: var(--panel-muted);
+    border-left: 1px solid var(--border);
+    border-radius: 9px 0 0 9px;
+}
+
+.data-panel table.dataTable tbody tr:nth-child(even) > .sticky-symbol {
+    background: #fbfcfe;
+}
+
+.data-panel table.dataTable tbody tr:hover > .sticky-symbol {
+    background: #f2f7fb;
 }
 
 table.dataTable.stripe > tbody > tr.odd > *,
