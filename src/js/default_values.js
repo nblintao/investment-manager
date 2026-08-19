@@ -422,6 +422,7 @@ export const INIT_PERSONAL_CONFIG = {
             "VICI",
             "VLO",
             "VMC",
+            "VMRK",
             "VRSN",
             "VRTX",
             "VST",
