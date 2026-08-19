@@ -144,6 +144,7 @@ function handleClick() {
 
     new DataTable('#allEquityInfo', {
         data: allEquityInfo,
+        autoWidth: false,
         destroy: true,
         paging: false,
         info: false,
@@ -154,24 +155,25 @@ function handleClick() {
             {
                 data: 'symbol',
                 title: 'Symbol',
+                className: 'sticky-symbol',
             },
             {
                 data: 'quantity',
                 title: 'Shares',
                 render: renderNum,
-                className: "dt-body-right",
+                className: "dt-head-right dt-body-right",
             },
             {
                 data: 'price',
-                title: 'Price$',
+                title: 'Price/$',
                 render: renderNum,
-                className: "dt-body-right",
+                className: "dt-head-right dt-body-right",
             },
             {
                 data: 'marketValue',
-                title: 'Market Value$',
+                title: 'Market value/$',
                 render: renderNum,
-                className: "dt-body-right",
+                className: "dt-head-right dt-body-right",
             },
             {
                 data: 'source',
@@ -179,7 +181,7 @@ function handleClick() {
             },
             {
                 data: 'mapTo',
-                title: 'Map To',
+                title: 'Mapped to',
             },
         ]
     });
@@ -192,6 +194,7 @@ function handleClick() {
     new DataTable('#plan', {
         data: plan.planList,
         order: [[0, 'asc']],
+        autoWidth: false,
         destroy: true,
         paging: false,
         info: false,
@@ -206,60 +209,61 @@ function handleClick() {
             {
                 data: 'symbol',
                 title: 'Symbol',
+                className: 'sticky-symbol',
             },
             {
                 data: 'oldMarketValue',
                 title: 'Before/$',
                 render: renderNum,
-                className: "dt-body-right",
+                className: "dt-head-right dt-body-right",
             },
             {
                 data: 'oldPercentage',
                 title: 'Before/%',
                 render: renderPerNum,
-                className: "dt-body-right",
+                className: "dt-head-right dt-body-right",
             },
             {
                 data: 'expectMarketValue',
                 title: 'Expect/$',
                 render: renderNum,
-                className: "dt-body-right",
+                className: "dt-head-right dt-body-right",
             },
             {
                 data: 'expectPercentage',
                 title: 'Expect/%',
                 render: renderPerNum,
-                className: "dt-body-right",
+                className: "dt-head-right dt-body-right",
             },
             {
                 data: 'ableMarketValue',
                 title: 'After/$',
                 render: renderNum,
-                className: "dt-body-right",
+                className: "dt-head-right dt-body-right",
             },
             {
                 data: 'newPercentage',
                 title: 'After/%',
                 render: renderPerNum,
-                className: "dt-body-right",
+                className: "dt-head-right dt-body-right",
             },
             {
                 data: 'addValueNeeded',
                 title: 'Buy/$',
                 render: renderNum,
-                className: "dt-body-right",
+                className: "dt-head-right dt-body-right",
             },
             {
                 data: 'price',
                 title: 'Price/$',
                 render: renderNum,
-                className: "dt-body-right",
+                className: "dt-head-right dt-body-right",
             },
             {
                 data: 'addShares',
                 title: 'Buy/Shares',
                 render: renderNum,
-                className: "dt-body-right",
+                className: "dt-head-right dt-body-right",
             },
             // {
             //     data: 'addValueActual',
