@@ -16,7 +16,7 @@
     --table-heading-font-size: 0.68rem;
     --plan-font-size: 1.05rem;
     --plan-heading-font-size: 0.88rem;
-    --table-cell-inline-padding: clamp(7px, 0.9vw, 14px);
+    --table-cell-inline-padding: clamp(8px, 1.3vw, 20px);
 }
 
 * {
