@@ -27,6 +27,30 @@ const ALLOCATION_COLORS = [
     "#cbaac6",
     "#cdb08d"
 ];
+const TABLE_FIT_ITERATIONS = 10;
+const TABLE_METRIC_PROPERTIES = Object.freeze({
+    bodyFont: "--table-current-body-font-size",
+    headingFont: "--table-current-heading-font-size",
+    bodyBlockPadding: "--table-current-body-block-padding",
+    headingBlockPadding: "--table-current-heading-block-padding",
+    inlinePadding: "--table-current-inline-padding"
+});
+const MINIMUM_TABLE_METRIC_TOKENS = Object.freeze({
+    bodyFont: "var(--table-compact-body-font-size)",
+    headingFont: "var(--table-compact-heading-font-size)",
+    bodyBlockPadding: "var(--table-compact-cell-block-padding)",
+    headingBlockPadding: "var(--table-compact-cell-block-padding)",
+    inlinePadding: "var(--table-compact-cell-padding-min)"
+});
+const TABLE_SIZE_METRICS = Object.freeze([
+    "bodyFont",
+    "headingFont",
+    "bodyBlockPadding",
+    "headingBlockPadding"
+]);
+
+let tableFitFrame = null;
+let tableResizeObserver = null;
 // import 'datatables.net-buttons-dt';
 // import 'datatables.net-responsive-dt';
 // import JSZip from 'jszip'; // For Excel export
@@ -122,6 +146,167 @@ function renderReviewNotes(diagnostics = {}) {
         row.append(symbol);
         return row;
     }));
+}
+
+function tableFits(scroller, table) {
+    const scrollerRect = scroller.getBoundingClientRect();
+    const tableRect = table.getBoundingClientRect();
+    const scrollerContentLeft = scrollerRect.left + scroller.clientLeft;
+    // Measure in unscrolled content coordinates because centered tables have a real left offset.
+    const tableInlineStart = tableRect.left - scrollerContentLeft + scroller.scrollLeft;
+    const tableInlineEnd = tableInlineStart + tableRect.width;
+
+    return tableInlineStart >= 0 && tableInlineEnd <= scroller.clientWidth;
+}
+
+function largestFittingValue(minimum, maximum, applyValue, fits) {
+    let fittingValue = minimum;
+    let overflowingValue = maximum;
+
+    for (let attempt = 0; attempt < TABLE_FIT_ITERATIONS; attempt += 1) {
+        const candidate = (fittingValue + overflowingValue) / 2;
+        applyValue(candidate);
+        if (fits()) {
+            fittingValue = candidate;
+        } else {
+            overflowingValue = candidate;
+        }
+    }
+
+    applyValue(fittingValue);
+    return fittingValue;
+}
+
+function setTableMetrics(table, metrics) {
+    for (const [metric, value] of Object.entries(metrics)) {
+        const property = TABLE_METRIC_PROPERTIES[metric];
+        table.style.setProperty(property, typeof value === "number" ? `${value}px` : value);
+    }
+}
+
+function clearTableMetrics(table) {
+    for (const property of Object.values(TABLE_METRIC_PROPERTIES)) {
+        table.style.removeProperty(property);
+    }
+}
+
+function readTableMetrics(table, headingCell, bodyCell) {
+    const tableStyle = getComputedStyle(table);
+    const headingStyle = getComputedStyle(headingCell);
+    const bodyStyle = getComputedStyle(bodyCell);
+
+    return {
+        bodyFont: parseFloat(tableStyle.fontSize),
+        headingFont: parseFloat(headingStyle.fontSize),
+        bodyBlockPadding: parseFloat(bodyStyle.paddingTop),
+        headingBlockPadding: parseFloat(headingStyle.paddingTop),
+        inlinePadding: parseFloat(bodyStyle.paddingLeft)
+    };
+}
+
+function setTableSizeScale(table, minimumMetrics, defaultMetrics, scale) {
+    const scaledMetrics = {};
+    for (const metric of TABLE_SIZE_METRICS) {
+        scaledMetrics[metric] = minimumMetrics[metric]
+            + ((defaultMetrics[metric] - minimumMetrics[metric]) * scale);
+    }
+    setTableMetrics(table, scaledMetrics);
+}
+
+function fitTableInlinePadding(scroller, table, bodyCell) {
+    const fits = () => tableFits(scroller, table);
+    if (fits()) {
+        return true;
+    }
+
+    const defaultPadding = parseFloat(getComputedStyle(bodyCell).paddingLeft);
+    setTableMetrics(table, {
+        inlinePadding: MINIMUM_TABLE_METRIC_TOKENS.inlinePadding
+    });
+    const minimumPadding = parseFloat(getComputedStyle(bodyCell).paddingLeft);
+
+    if (!fits()) {
+        return false;
+    }
+
+    largestFittingValue(
+        minimumPadding,
+        defaultPadding,
+        inlinePadding => setTableMetrics(table, { inlinePadding }),
+        fits
+    );
+    return true;
+}
+
+/*
+ * Table sizing contract:
+ * Every responsive table follows the same stages: keep its CSS defaults while they
+ * fit, reduce inline whitespace, then reduce type and row height to the shared
+ * readable minimum, and only then allow horizontal overflow. A table whose CSS
+ * defaults already equal the minimum naturally skips the typography stage.
+ * CSS owns the size bounds; JavaScript only measures real content and selects the
+ * largest values that fit, so this works with changing data rather than breakpoints.
+ */
+function fitResponsiveTable(scroller) {
+    const table = scroller.querySelector("table.dataTable");
+    if (!table) {
+        return;
+    }
+    const headingCell = table.querySelector("thead th");
+    const bodyCell = table.querySelector("tbody td");
+
+    if (!headingCell || !bodyCell || scroller.clientWidth === 0) {
+        return;
+    }
+
+    clearTableMetrics(table);
+    const defaultMetrics = readTableMetrics(table, headingCell, bodyCell);
+    if (fitTableInlinePadding(scroller, table, bodyCell)) {
+        return;
+    }
+
+    setTableMetrics(table, MINIMUM_TABLE_METRIC_TOKENS);
+    const minimumMetrics = readTableMetrics(table, headingCell, bodyCell);
+    const fits = () => tableFits(scroller, table);
+
+    if (!fits()) {
+        return;
+    }
+
+    largestFittingValue(
+        0,
+        1,
+        scale => setTableSizeScale(table, minimumMetrics, defaultMetrics, scale),
+        fits
+    );
+}
+
+function fitResponsiveTables() {
+    for (const scroller of document.querySelectorAll(".table-scroll")) {
+        fitResponsiveTable(scroller);
+    }
+}
+
+function scheduleTableFit() {
+    if (tableFitFrame !== null) {
+        cancelAnimationFrame(tableFitFrame);
+    }
+    tableFitFrame = requestAnimationFrame(() => {
+        tableFitFrame = null;
+        fitResponsiveTables();
+    });
+}
+
+function observeTableSizes() {
+    const scrollers = document.querySelectorAll(".table-scroll");
+    if ("ResizeObserver" in window) {
+        tableResizeObserver = new ResizeObserver(scheduleTableFit);
+        for (const scroller of scrollers) {
+            tableResizeObserver.observe(scroller);
+        }
+    } else {
+        window.addEventListener("resize", scheduleTableFit);
+    }
 }
 
 // This is the main function that handles the button click event
@@ -288,6 +473,7 @@ function handleClick() {
 
         ]
     });
+    scheduleTableFit();
 
     let cash = plan.cash;
     let bufferCash = plan.bufferCash;
@@ -589,6 +775,7 @@ function dropFile(dropEvent, element) {
 
 window.addEventListener("DOMContentLoaded", function () {
     renderQuickAmountFields();
+    observeTableSizes();
 
     const inputCSV = document.getElementById("inputCSV");
     inputCSV.addEventListener("input", inputChanged);

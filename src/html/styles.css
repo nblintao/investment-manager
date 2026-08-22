@@ -6,6 +6,7 @@
     --text-muted: #667085;
     --border: #dde5ee;
     --border-strong: #cbd7e4;
+    --control-border: var(--border);
     --brand: #287fb8;
     --brand-bright: #469eda;
     --brand-soft: #eaf4fb;
@@ -14,11 +15,16 @@
     --shadow: 0 12px 30px rgba(31, 50, 73, 0.06);
     --icon-white: brightness(0) invert(1);
     --icon-brand: invert(44%) sepia(92%) saturate(496%) hue-rotate(158deg) brightness(88%) contrast(91%);
-    --table-font-size: 0.78rem;
-    --table-heading-font-size: 0.68rem;
-    --plan-font-size: 1.05rem;
-    --plan-heading-font-size: 0.88rem;
-    --table-cell-inline-padding: clamp(8px, 1.3vw, 20px);
+    /* Shared readable bounds; JavaScript only moves within these tokens when content overflows. */
+    --table-compact-body-font-size: 0.78rem;
+    --table-compact-heading-font-size: 0.68rem;
+    --table-compact-cell-padding-min: 6px;
+    --table-compact-cell-block-padding: var(--table-compact-cell-padding-min);
+    --table-compact-cell-inline-padding: 24px;
+    --plan-expanded-body-font-size: 1.05rem;
+    --plan-expanded-heading-font-size: 0.88rem;
+    --plan-expanded-cell-block-padding: 0.5em;
+    --plan-expanded-cell-inline-padding: 32px;
 }
 
 * {
@@ -238,7 +244,7 @@ body {
     min-height: 44px;
     overflow: hidden;
     background: #ffffff;
-    border: 1px solid #7d91a8;
+    border: 1px solid var(--control-border);
     border-radius: 8px;
 }
 
@@ -306,7 +312,7 @@ body {
     padding: 12px 13px;
     color: #26354b;
     background: var(--panel-muted);
-    border: 1px solid var(--border);
+    border: 1px solid var(--control-border);
     border-radius: 10px;
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
     font-size: 0.78rem;
@@ -406,12 +412,18 @@ body {
 
 table.dataTable,
 table.table {
+    --table-current-body-font-size: var(--table-compact-body-font-size);
+    --table-current-heading-font-size: var(--table-compact-heading-font-size);
+    --table-current-body-block-padding: var(--table-compact-cell-block-padding);
+    --table-current-heading-block-padding: var(--table-compact-cell-block-padding);
+    --table-current-inline-padding: var(--table-compact-cell-inline-padding);
+
     width: 100% !important;
     margin: 0 !important;
     color: #344054;
     border-collapse: separate !important;
     border-spacing: 0;
-    font-size: var(--table-font-size);
+    font-size: var(--table-current-body-font-size);
 }
 
 table.dataTable.no-footer {
@@ -420,12 +432,12 @@ table.dataTable.no-footer {
 
 table.dataTable thead th,
 table.dataTable thead td {
-    padding: 6px 10px;
+    padding: var(--table-current-heading-block-padding) var(--table-current-inline-padding);
     color: #526174;
     background: var(--panel-muted);
     border-top: 1px solid var(--border);
     border-bottom: 1px solid var(--border) !important;
-    font-size: var(--table-heading-font-size);
+    font-size: var(--table-current-heading-font-size);
     font-weight: 780;
     letter-spacing: 0.015em;
     text-transform: none;
@@ -443,48 +455,30 @@ table.dataTable thead th:last-child {
 }
 
 table.dataTable tbody td {
-    padding: 6px 10px;
+    padding: var(--table-current-body-block-padding) var(--table-current-inline-padding);
     border-bottom: 1px solid #edf1f5;
     white-space: nowrap;
 }
 
 table.dataTable#plan,
 table.dataTable#allEquityInfo {
-    width: max-content !important;
-    margin-right: auto !important;
-    margin-left: auto !important;
     font-variant-numeric: tabular-nums;
 }
 
+table.dataTable#allEquityInfo {
+    width: max-content !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+}
+
 table.dataTable#plan {
-    font-size: clamp(
-        var(--table-font-size),
-        calc(0.8rem + 0.25vw),
-        var(--plan-font-size)
-    );
-}
+    --table-current-body-font-size: var(--plan-expanded-body-font-size);
+    --table-current-heading-font-size: var(--plan-expanded-heading-font-size);
+    --table-current-body-block-padding: var(--plan-expanded-cell-block-padding);
+    --table-current-heading-block-padding: var(--plan-expanded-cell-block-padding);
+    --table-current-inline-padding: var(--plan-expanded-cell-inline-padding);
 
-table.dataTable#plan thead th,
-table.dataTable#plan thead td,
-table.dataTable#allEquityInfo thead th,
-table.dataTable#allEquityInfo thead td {
-    padding-right: var(--table-cell-inline-padding);
-    padding-left: var(--table-cell-inline-padding);
-}
-
-table.dataTable#plan thead th,
-table.dataTable#plan thead td {
-    font-size: clamp(
-        var(--table-heading-font-size),
-        calc(0.7rem + 0.14vw),
-        var(--plan-heading-font-size)
-    );
-}
-
-table.dataTable#plan tbody td,
-table.dataTable#allEquityInfo tbody td {
-    padding-right: var(--table-cell-inline-padding);
-    padding-left: var(--table-cell-inline-padding);
+    width: 100% !important;
 }
 
 .data-panel table.dataTable thead > tr > th.sorting,
@@ -492,7 +486,7 @@ table.dataTable#allEquityInfo tbody td {
 .data-panel table.dataTable thead > tr > th.sorting_desc,
 .data-panel table.dataTable thead > tr > th.sorting_asc_disabled,
 .data-panel table.dataTable thead > tr > th.sorting_desc_disabled {
-    padding-right: var(--table-cell-inline-padding);
+    padding-right: var(--table-current-inline-padding);
 }
 
 .data-panel table.dataTable thead > tr > th.sorting::before,
