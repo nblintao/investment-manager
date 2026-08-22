@@ -3,8 +3,8 @@ export const INIT_PERSONAL_CONFIG = {
     bufferCash: 1000,
     outsideHoldings: [
         { symbol: "Fixed Income", quantity: 0 },
-        { symbol: "F-BND", quantity: 325481.48 },
-        { symbol: "F-US", quantity: 423484.74 }
+        { symbol: "F-US-BOND", quantity: 325792.00 },
+        { symbol: "F-US-STK", quantity: 419408.14 }
     ],
     targetPercentage: {
         "VTI": 54,
@@ -13,8 +13,8 @@ export const INIT_PERSONAL_CONFIG = {
     },
     hardcodePrice: {
         "Fixed Income": 1,
-        "F-BND": 1,
-        "F-US": 1
+        "F-US-BOND": 1,
+        "F-US-STK": 1
     },
     sellableSymbols: [],
     defaultMapTo: "VTI",
@@ -29,13 +29,13 @@ export const INIT_PERSONAL_CONFIG = {
         // Municipal bonds
         "VTEB": [
             "Fixed Income",
-            "F-BND"
+            "F-US-BOND"
         ],
         "VTI": [
             // US stocks
             "VXF",
             "VB",
-            "F-US",
+            "F-US-STK",
             // Dividend growth stocks
             "VIG",
             "SCHD",

@@ -1,6 +1,14 @@
 import { runInvestmentManager } from "./investment_manager.js"
 import { INIT_SCHWAB_CSV, INIT_PERSONAL_CONFIG } from "./default_values.js"
 import { isSymbolSellable, setSellableSymbolMode } from "./rebalance_options.js"
+import {
+    QUICK_CONFIG_AMOUNT_BINDINGS,
+    formatAmount,
+    isAmountValid,
+    parsePastedAmount,
+    readConfigBinding,
+    writeConfigBinding
+} from "./quick_config.js"
 import PieChart from "./pie_chart.js"
 
 import DataTable from 'datatables.net-dt';
@@ -328,29 +336,223 @@ function handleClick() {
     document.getElementById("pigBtn").disabled = true;
 }
 
-function inputChanged() {
-    document.getElementById("pigBtn").disabled = false;
+const quickAmountControls = new Map();
+
+function renderQuickAmountFields() {
+    const container = document.getElementById("quickAmountFields");
+    const fields = QUICK_CONFIG_AMOUNT_BINDINGS.map(binding => {
+        const field = document.createElement("div");
+        const label = document.createElement("label");
+        const control = document.createElement("div");
+        const prefix = document.createElement("span");
+        const input = document.createElement("input");
+        const error = document.createElement("span");
+        const inputId = `quick-amount-${binding.id}`;
+
+        field.className = "quick-amount-field";
+        label.className = "quick-amount-label";
+        label.htmlFor = inputId;
+        label.textContent = binding.label;
+        control.className = "quick-amount-control";
+        prefix.className = "quick-amount-prefix";
+        prefix.textContent = "$";
+        prefix.setAttribute("aria-hidden", "true");
+        input.className = "quick-amount-input";
+        input.id = inputId;
+        input.type = "text";
+        input.inputMode = "decimal";
+        input.autocomplete = "off";
+        input.spellcheck = false;
+        input.setAttribute("aria-describedby", `${inputId}-error`);
+        error.className = "quick-amount-error";
+        error.id = `${inputId}-error`;
+        error.setAttribute("role", "alert");
+        error.hidden = true;
+
+        control.append(prefix, input);
+        field.append(label, control, error);
+        quickAmountControls.set(binding.id, { field, input, error, blocksRun: false });
+
+        input.addEventListener("input", function (inputEvent) {
+            updateQuickAmount(binding);
+            if (inputEvent.inputType === "insertFromPaste") {
+                normalizeQuickAmountInput(binding);
+            }
+        });
+        input.addEventListener("blur", function () {
+            normalizeQuickAmountInput(binding);
+        });
+        input.addEventListener("keydown", function (keyEvent) {
+            if (keyEvent.key === "Enter") {
+                keyEvent.preventDefault();
+                input.blur();
+            }
+        });
+
+        return field;
+    });
+    container.replaceChildren(...fields);
 }
 
-function syncVtebSellToggleFromConfig() {
-    const inputConfig = document.getElementById("inputConfig");
-    const allowVtebSell = document.getElementById("allowVtebSell");
-    try {
-        const config = JSON.parse(inputConfig.value);
-        allowVtebSell.checked = isSymbolSellable(config, VTEB_SYMBOL);
-        allowVtebSell.indeterminate = false;
-        allowVtebSell.disabled = false;
-        return true;
-    } catch {
-        allowVtebSell.indeterminate = true;
-        allowVtebSell.disabled = true;
-        return false;
+function setQuickAmountError(control, message) {
+    const hasError = Boolean(message);
+    control.field.classList.toggle("is-invalid", hasError);
+    control.input.setAttribute("aria-invalid", String(hasError));
+    control.error.textContent = message ?? "";
+    control.error.hidden = !hasError;
+}
+
+function setQuickAmountStatus(message) {
+    const status = document.getElementById("quickAmountsStatus");
+    status.textContent = message ?? "";
+    status.hidden = !message;
+}
+
+function bindingPlaceholder(error) {
+    if (error.code === "missing") {
+        return "Not in config";
+    }
+    if (error.code === "duplicate") {
+        return "Duplicate entries";
+    }
+    return "Unavailable";
+}
+
+function syncQuickAmountFields(config) {
+    let allFieldsValid = true;
+    setQuickAmountStatus(null);
+
+    for (const binding of QUICK_CONFIG_AMOUNT_BINDINGS) {
+        const control = quickAmountControls.get(binding.id);
+        control.input.disabled = false;
+        control.input.placeholder = "";
+        control.input.title = "";
+        control.blocksRun = false;
+
+        let amount;
+        try {
+            amount = readConfigBinding(config, binding);
+        } catch (error) {
+            control.input.value = "";
+            control.input.disabled = true;
+            control.input.placeholder = bindingPlaceholder(error);
+            control.input.title = error.message;
+            setQuickAmountError(control, null);
+            if (error.code === "invalid_collection") {
+                control.blocksRun = true;
+                allFieldsValid = false;
+                setQuickAmountStatus(error.message);
+            }
+            continue;
+        }
+
+        if (!isAmountValid(amount)) {
+            control.input.value = amount == null ? "" : String(amount);
+            control.blocksRun = true;
+            setQuickAmountError(control, "Enter a non-negative amount with no more than two decimal places.");
+            allFieldsValid = false;
+            continue;
+        }
+
+        setQuickAmountError(control, null);
+        control.input.value = formatAmount(amount);
+    }
+
+    return allFieldsValid;
+}
+
+function pauseQuickAmountFields(message) {
+    setQuickAmountStatus(message);
+    for (const control of quickAmountControls.values()) {
+        control.input.disabled = true;
+        control.blocksRun = true;
+        setQuickAmountError(control, null);
     }
 }
 
+function syncVtebSellToggleFromConfig(config) {
+    const allowVtebSell = document.getElementById("allowVtebSell");
+    allowVtebSell.checked = isSymbolSellable(config, VTEB_SYMBOL);
+    allowVtebSell.indeterminate = false;
+    allowVtebSell.disabled = false;
+}
+
+function pauseVtebSellToggle() {
+    const allowVtebSell = document.getElementById("allowVtebSell");
+    allowVtebSell.indeterminate = true;
+    allowVtebSell.disabled = true;
+}
+
+function syncConfigControlsFromEditor() {
+    const inputConfig = document.getElementById("inputConfig");
+    let config;
+    try {
+        config = JSON.parse(inputConfig.value);
+    } catch {
+        pauseVtebSellToggle();
+        pauseQuickAmountFields("Quick amounts are paused until Personal config contains valid JSON.");
+        return false;
+    }
+
+    syncVtebSellToggleFromConfig(config);
+    return syncQuickAmountFields(config);
+}
+
+function currentInputsAreValid() {
+    try {
+        JSON.parse(document.getElementById("inputConfig").value);
+    } catch {
+        return false;
+    }
+    return Array.from(quickAmountControls.values()).every(control =>
+        !control.blocksRun && (control.input.disabled || control.input.getAttribute("aria-invalid") !== "true")
+    );
+}
+
+function inputChanged() {
+    document.getElementById("pigBtn").disabled = !currentInputsAreValid();
+}
+
 function configChanged() {
-    const configIsValid = syncVtebSellToggleFromConfig();
-    document.getElementById("pigBtn").disabled = !configIsValid;
+    const configControlsAreValid = syncConfigControlsFromEditor();
+    document.getElementById("pigBtn").disabled = !configControlsAreValid;
+}
+
+function updateQuickAmount(binding) {
+    const control = quickAmountControls.get(binding.id);
+    const amount = parsePastedAmount(control.input.value);
+
+    if (amount === null || !isAmountValid(amount)) {
+        control.blocksRun = true;
+        setQuickAmountError(control, "Enter a non-negative amount with no more than two decimal places.");
+        inputChanged();
+        return;
+    }
+
+    const inputConfig = document.getElementById("inputConfig");
+    try {
+        const config = JSON.parse(inputConfig.value);
+        const updatedConfig = writeConfigBinding(config, binding, amount);
+        inputConfig.value = JSON.stringify(updatedConfig, null, 2);
+        control.blocksRun = false;
+        setQuickAmountError(control, null);
+    } catch (error) {
+        control.blocksRun = true;
+        setQuickAmountError(control, error.message);
+    }
+    inputChanged();
+}
+
+function normalizeQuickAmountInput(binding) {
+    const control = quickAmountControls.get(binding.id);
+    const amount = parsePastedAmount(control.input.value);
+    if (
+        control.input.getAttribute("aria-invalid") !== "true" &&
+        amount !== null &&
+        isAmountValid(amount)
+    ) {
+        control.input.value = formatAmount(amount);
+    }
 }
 
 function updateVtebSellOption() {
@@ -386,6 +588,8 @@ function dropFile(dropEvent, element) {
 
 
 window.addEventListener("DOMContentLoaded", function () {
+    renderQuickAmountFields();
+
     const inputCSV = document.getElementById("inputCSV");
     inputCSV.addEventListener("input", inputChanged);
     inputCSV.ondrop = function (dropEvent) {
@@ -415,7 +619,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
     inputCSV.value = INIT_SCHWAB_CSV
     inputConfig.value = JSON.stringify(INIT_PERSONAL_CONFIG, null, 2);
-    syncVtebSellToggleFromConfig();
+    syncConfigControlsFromEditor();
     handleClick();
 
 }, false);
