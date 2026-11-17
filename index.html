@@ -1,86 +1,55 @@
-<!doctype html>
-<html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tao's Investment Manager</title>
-
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#469eda">
-    <meta name="msapplication-TileColor" content="#469eda">
-    <meta name="theme-color" content="#f4f7fb">
-
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="styles.css">
-
-    <script src="main.js" defer></script>
-</head>
-
-<body>
-    <main class="app-shell">
-        <header class="app-header">
-            <a href="/" class="brand-link">
+<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Tao's Investment Manager</title><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/site.webmanifest><link rel=mask-icon href=/safari-pinned-tab.svg color=#469eda><meta name=msapplication-TileColor content=#469eda><meta name=theme-color content=#f4f7fb><link rel=stylesheet href=https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css><link rel=stylesheet href=https://cdn.datatables.net/buttons/2.3.6/css/buttons.dataTables.min.css><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css><link rel=stylesheet href=styles.css><script src=main.js defer></script></head><body>
+    <main class=app-shell>
+        <header class=app-header>
+            <a href=/ class=brand-link>
                 <h1>Tao's Investment Manager</h1>
             </a>
-            <button type="button" id="pigBtn" class="run-button">
+            <button type=button id=pigBtn class=run-button>
                 <span>Run rebalance</span>
-                <img id="pigBtnImg" src="safari-pinned-tab.svg" alt="" aria-hidden="true">
+                <img id=pigBtnImg src=safari-pinned-tab.svg alt aria-hidden=true>
             </button>
         </header>
 
-        <section class="workspace-section" aria-labelledby="inputsHeading">
-            <h2 class="visually-hidden" id="inputsHeading">Portfolio data</h2>
+        <section class=workspace-section aria-labelledby=inputsHeading>
+            <h2 class=visually-hidden id=inputsHeading>Portfolio data</h2>
 
             <div class="row g-3">
                 <div class="col-12 col-xl-6">
                     <article class="panel editor-panel">
-                        <div class="panel-heading">
-                            <div class="panel-title">
+                        <div class=panel-heading>
+                            <div class=panel-title>
                                 <h3>Schwab positions</h3>
-                                <span class="info-tip" role="img" tabindex="0"
-                                    aria-label="The default portfolio is illustrative only and does not reflect actual investments or financial advice."
-                                    data-tooltip="The default portfolio is illustrative only and does not reflect actual investments or financial advice.">i</span>
+                                <span class=info-tip role=img tabindex=0 aria-label="The default portfolio is illustrative only and does not reflect actual investments or financial advice." data-tooltip="The default portfolio is illustrative only and does not reflect actual investments or financial advice.">i</span>
                             </div>
-                            <button type="button" id="inputCSVLabel" class="upload-button"
-                                title="Upload a Schwab CSV file">
-                                Upload CSV <span aria-hidden="true">↑</span>
+                            <button type=button id=inputCSVLabel class=upload-button title="Upload a Schwab CSV file">
+                                Upload CSV <span aria-hidden=true>↑</span>
                             </button>
                         </div>
-                        <label class="visually-hidden" for="inputCSV">Schwab CSV data</label>
-                        <textarea class="form-control code-editor" id="inputCSV" spellcheck="false"
-                            aria-label="Schwab CSV data"></textarea>
-                        <input type="file" id="inputCSVFile" accept=".csv,text/csv" hidden>
+                        <label class=visually-hidden for=inputCSV>Schwab CSV data</label>
+                        <textarea class="form-control code-editor" id=inputCSV spellcheck=false aria-label="Schwab CSV data"></textarea>
+                        <input type=file id=inputCSVFile accept=.csv,text/csv hidden>
                     </article>
                 </div>
 
                 <div class="col-12 col-xl-6">
                     <article class="panel editor-panel">
-                        <div class="panel-heading">
+                        <div class=panel-heading>
                             <h3>Personal config</h3>
                         </div>
-                        <section class="quick-amount-editor" aria-labelledby="quickAmountsHeading">
-                            <div class="quick-amount-heading">
-                                <h4 id="quickAmountsHeading">Outside holdings</h4>
+                        <section class=quick-amount-editor aria-labelledby=quickAmountsHeading>
+                            <div class=quick-amount-heading>
+                                <h4 id=quickAmountsHeading>Outside holdings</h4>
                             </div>
-                            <div id="quickAmountFields" class="quick-amount-fields"></div>
-                            <p id="quickAmountsStatus" class="quick-amount-status" role="status" hidden></p>
+                            <div id=quickAmountFields class=quick-amount-fields></div>
+                            <p id=quickAmountsStatus class=quick-amount-status role=status hidden></p>
                         </section>
-                        <label class="visually-hidden" for="inputConfig">Personal configuration JSON</label>
-                        <textarea class="form-control code-editor" id="inputConfig" spellcheck="false"
-                            aria-label="Personal configuration JSON"></textarea>
-                        <div class="editor-footer">
+                        <label class=visually-hidden for=inputConfig>Personal configuration JSON</label>
+                        <textarea class="form-control code-editor" id=inputConfig spellcheck=false aria-label="Personal configuration JSON"></textarea>
+                        <div class=editor-footer>
                             <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" role="switch" id="allowVtebSell">
-                                <label class="form-check-label" for="allowVtebSell">Allow selling actual VTEB</label>
-                                <span class="info-tip" role="img" tabindex="0"
-                                    aria-label="Off means buy only. Outside and mapped bond holdings are never sold."
-                                    data-tooltip="Off means buy only. Outside and mapped bond holdings are never sold.">i</span>
+                                <input class=form-check-input type=checkbox role=switch id=allowVtebSell>
+                                <label class=form-check-label for=allowVtebSell>Allow selling actual VTEB</label>
+                                <span class=info-tip role=img tabindex=0 aria-label="Off means buy only. Outside and mapped bond holdings are never sold." data-tooltip="Off means buy only. Outside and mapped bond holdings are never sold.">i</span>
                             </div>
                         </div>
                     </article>
@@ -89,79 +58,80 @@
 
         </section>
 
-        <section class="panel data-panel" aria-labelledby="planHeading">
+        <section class="panel data-panel" aria-labelledby=planHeading>
             <div class="section-heading compact">
-                <h2 id="planHeading">Rebalance plan</h2>
-                <details id="reviewNotes" class="review-notes" hidden>
+                <h2 id=planHeading>Rebalance plan</h2>
+                <details id=reviewNotes class=review-notes hidden>
                     <summary>
                         <span>Review notes</span>
                     </summary>
-                    <div class="review-notes-popover">
-                        <section id="skippedRowsGroup" class="review-notes-group" hidden>
+                    <div class=review-notes-popover>
+                        <section id=skippedRowsGroup class=review-notes-group hidden>
                             <h3>Skipped CSV rows</h3>
                             <p>These positions had invalid numeric values and were excluded.</p>
-                            <ul id="skippedRowsList" class="skipped-rows-list"></ul>
+                            <ul id=skippedRowsList class=skipped-rows-list></ul>
                         </section>
-                        <section id="defaultMappingGroup" class="review-notes-group" hidden>
+                        <section id=defaultMappingGroup class=review-notes-group hidden>
                             <h3>Using default mapping</h3>
                             <p>These positions were not explicitly configured.</p>
-                            <ul id="defaultMappingList" class="default-mapping-list"></ul>
+                            <ul id=defaultMappingList class=default-mapping-list></ul>
                         </section>
-                        <section id="unusedMappingGroup" class="review-notes-group" hidden>
+                        <section id=unusedMappingGroup class=review-notes-group hidden>
                             <h3>Unused mappings</h3>
                             <p>These configured symbols are not in the current holdings.</p>
-                            <ul id="unusedMappingList" class="unused-mapping-list"></ul>
+                            <ul id=unusedMappingList class=unused-mapping-list></ul>
                         </section>
                     </div>
                 </details>
             </div>
             <div class="table-scroll plan-table-scroll">
-                <table id="plan" class="table align-middle mb-0"></table>
+                <table id=plan class="table align-middle mb-0"></table>
             </div>
         </section>
 
-        <section class="workspace-section" aria-labelledby="allocationHeading">
-            <div class="section-heading">
-                <h2 id="allocationHeading">Portfolio mix</h2>
+        <section class=workspace-section aria-labelledby=allocationHeading>
+            <div class=section-heading>
+                <h2 id=allocationHeading>Portfolio mix</h2>
             </div>
 
             <div class="row g-3">
                 <div class="col-12 col-md-6 col-xl-4">
                     <article class="panel chart-card">
-                        <div class="chart-heading">
+                        <div class=chart-heading>
                             <h3>Before</h3>
                         </div>
-                        <div id="pieBefore" class="chart-visual"></div>
+                        <div id=pieBefore class=chart-visual></div>
                     </article>
                 </div>
                 <div class="col-12 col-md-6 col-xl-4">
                     <article class="panel chart-card">
-                        <div class="chart-heading">
+                        <div class=chart-heading>
                             <h3>Target</h3>
                         </div>
-                        <div id="pieExpect" class="chart-visual"></div>
+                        <div id=pieExpect class=chart-visual></div>
                     </article>
                 </div>
                 <div class="col-12 col-md-6 col-xl-4">
                     <article class="panel chart-card">
-                        <div class="chart-heading">
+                        <div class=chart-heading>
                             <h3>After</h3>
                         </div>
-                        <div id="pieAfter" class="chart-visual"></div>
+                        <div id=pieAfter class=chart-visual></div>
                     </article>
                 </div>
             </div>
         </section>
 
-        <section class="panel data-panel" aria-labelledby="holdingsHeading">
+        <section class="panel data-panel" aria-labelledby=holdingsHeading>
             <div class="section-heading compact">
-                <h2 id="holdingsHeading">Mapped holdings</h2>
+                <h2 id=holdingsHeading>Mapped holdings</h2>
             </div>
             <div class="table-scroll holdings-table-scroll">
-                <table id="allEquityInfo" class="table align-middle mb-0"></table>
+                <table id=allEquityInfo class="table align-middle mb-0"></table>
             </div>
         </section>
     </main>
-</body>
 
-</html>
+
+
+</body></html>
